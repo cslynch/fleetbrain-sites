@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FleetBrain — AI Agents That Get Smarter Every Time They Work</title>
+<meta name="description" content="FleetBrain deploys managed AI agents for businesses. A human reviews every action. Every correction is permanent. Every deployment inherits everything from the ones before it.">
+<meta name="theme-color" content="#08080d">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://fleetbrain.ai">
+<meta property="og:title" content="FleetBrain — AI Agents That Get Smarter Every Time They Work">
+<meta property="og:description" content="FleetBrain deploys managed AI agents for businesses. A human reviews every action. Every correction is permanent. Every deployment inherits everything from the ones before it.">
+<meta property="og:image" content="https://fleetbrain.ai/og-image.png">
+<meta property="og:site_name" content="FleetBrain">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FleetBrain — AI Agents That Get Smarter Every Time They Work">
+<meta name="twitter:description" content="FleetBrain deploys managed AI agents for businesses. A human reviews every action. Every correction is permanent.">
+
+<!-- Favicon (inline SVG brain icon as data URI) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none'%3E%3Cpath d='M20 16c-6 2-10 8-10 15 0 5 2 9 5 12l3 5h6l1-4' stroke='%233b82f6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M44 16c6 2 10 8 10 15 0 5-2 9-5 12l-3 5h-6l-1-4' stroke='%233b82f6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M24 48h16' stroke='%233b82f6' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M26 52h12' stroke='%233b82f6' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M32 12V8' stroke='%233b82f6' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M20 16c4-4 8-5 12-4 4-1 8 0 12 4' stroke='%233b82f6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='24' cy='24' r='2.5' fill='%233b82f6'/%3E%3Ccircle cx='32' cy='20' r='2.5' fill='%233b82f6'/%3E%3Ccircle cx='40' cy='24' r='2.5' fill='%233b82f6'/%3E%3Ccircle cx='28' cy='32' r='2.5' fill='%233b82f6'/%3E%3Ccircle cx='36' cy='32' r='2.5' fill='%233b82f6'/%3E%3Ccircle cx='32' cy='40' r='2.5' fill='%233b82f6'/%3E%3Cline x1='24' y1='24' x2='32' y2='20' stroke='%233b82f6' stroke-width='1.5' opacity='0.6'/%3E%3Cline x1='32' y1='20' x2='40' y2='24' stroke='%233b82f6' stroke-width='1.5' opacity='0.6'/%3E%3Cline x1='24' y1='24' x2='28' y2='32' stroke='%233b82f6' stroke-width='1.5' opacity='0.6'/%3E%3Cline x1='40' y1='24' x2='36' y2='32' stroke='%233b82f6' stroke-width='1.5' opacity='0.6'/%3E%3Cline x1='28' y1='32' x2='36' y2='32' stroke='%233b82f6' stroke-width='1.5' opacity='0.6'/%3E%3Cline x1='28' y1='32' x2='32' y2='40' stroke='%233b82f6' stroke-width='1.5' opacity='0.6'/%3E%3Cline x1='36' y1='32' x2='32' y2='40' stroke='%233b82f6' stroke-width='1.5' opacity='0.6'/%3E%3Cline x1='32' y1='20' x2='28' y2='32' stroke='%233b82f6' stroke-width='1.5' opacity='0.4'/%3E%3Cline x1='32' y1='20' x2='36' y2='32' stroke='%233b82f6' stroke-width='1.5' opacity='0.4'/%3E%3Cpath d='M44 28l5-2' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M46 32l4 0' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M44 36l5 2' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' opacity='0.7'/%3E%3C/svg%3E">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ===== RESET & VARIABLES ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #3b82f6;
+  --accent: #2563eb;
+  --deep: #1d4ed8;
+  --dark: #1e40af;
+  --text-dark: #0f172a;
+  --surface: #111118;
+  --background: #08080d;
+  --text-light: #edf2fc;
+  --surface-light: #f5f7fa;
+  --stanley-red: #e74c3c;
+  --muted: #94a3b8;
+  --success: #22c55e;
+  --warning: #eab308;
+  --max-width: 1200px;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--background);
+  color: var(--text-light);
+  line-height: 1.7;
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ===== BACKGROUND GRID PATTERN ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle, rgba(59, 130, 246, 0.12) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: 24px 24px;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg width='480' height='480' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='48' y1='48' x2='96' y2='96' stroke='%233b82f6' stroke-width='0.5'/%3E%3Cline x1='192' y1='96' x2='240' y2='48' stroke='%233b82f6' stroke-width='0.5'/%3E%3Cline x1='288' y1='192' x2='336' y2='240' stroke='%233b82f6' stroke-width='0.5'/%3E%3Cline x1='96' y1='288' x2='144' y2='336' stroke='%233b82f6' stroke-width='0.5'/%3E%3Cline x1='384' y1='96' x2='432' y2='144' stroke='%233b82f6' stroke-width='0.5'/%3E%3Cline x1='48' y1='432' x2='96' y2='384' stroke='%233b82f6' stroke-width='0.5'/%3E%3Cline x1='336' y1='384' x2='384' y2='432' stroke='%233b82f6' stroke-width='0.5'/%3E%3Cline x1='192' y1='192' x2='240' y2='240' stroke='%233b82f6' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-size: 480px 480px;
+}
+
+/* ===== LAYOUT ===== */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+section {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== REVEAL ANIMATIONS ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.35s; }
+.reveal-delay-5 { transition-delay: 0.4s; }
+.reveal-delay-6 { transition-delay: 0.45s; }
+
+/* ===== NAVIGATION ===== */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0 24px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nav.scrolled {
+  background: rgba(8, 8, 13, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(59, 130, 246, 0.08);
+}
+
+.nav-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.nav-logo svg {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.nav-wordmark {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.nav-wordmark .fb-text { color: var(--text-light); }
+.nav-wordmark .fb-ai { color: var(--primary); text-transform: uppercase; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  color: var(--text-light);
+}
+
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--text-light);
+  border-radius: 1px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+.nav-hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ===== MOBILE NAV ===== */
+@media (max-width: 768px) {
+  .nav-hamburger {
+    display: flex;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(8, 8, 13, 0.98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 48px;
+    gap: 0;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .nav-links.open {
+    transform: translateX(0);
+  }
+
+  .nav-links li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 16px 24px;
+    font-size: 1.125rem;
+  }
+}
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px 60px;
+  position: relative;
+}
+
+.hero-content {
+  max-width: 800px;
+}
+
+.hero-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.hero-logo svg {
+  width: 56px;
+  height: 56px;
+}
+
+.hero-logo .wordmark {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.hero-logo .wordmark .fb-text { color: var(--text-light); }
+.hero-logo .wordmark .fb-ai { color: var(--primary); text-transform: uppercase; }
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5.5vw, 4rem);
+  font-weight: 800;
+  color: var(--text-light);
+  margin-bottom: 24px;
+  letter-spacing: -0.03em;
+}
+
+.hero-sub {
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  color: var(--muted);
+  max-width: 640px;
+  margin: 0 auto 32px;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.cta-btn {
+  display: inline-block;
+  padding: 16px 40px;
+  background: var(--primary);
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.cta-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.hero-scroll-hint .scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--primary), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* ===== SECTION GENERAL ===== */
+.section {
+  padding: 60px 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-label {
+  display: inline-block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 640px;
+  margin: 0 auto;
+  font-weight: 300;
+}
+
+.divider {
+  width: 48px;
+  height: 2px;
+  background: var(--primary);
+  margin: 0 auto;
+  opacity: 0.5;
+}
+
+/* ===== HOW IT WORKS — THE LOOP (CIRCULAR) ===== */
+.loop-visual {
+  max-width: 600px;
+  margin: 0 auto 36px;
+  position: relative;
+}
+
+.loop-ring {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+}
+
+.loop-ring svg.loop-ring-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.loop-node {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: center;
+  width: 190px;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.loop-node-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 3px;
+}
+
+.loop-node-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* Node positions: top, right, bottom, left — pulled inward to prevent clipping */
+.loop-node.strategy   { top: 4%;  left: 50%; border-color: rgba(59,130,246,0.4); }
+.loop-node.human      { top: 50%; left: 80%; border-color: rgba(34,197,94,0.4); }
+.loop-node.execution  { top: 96%; left: 50%; border-color: rgba(234,179,8,0.4); }
+.loop-node.results    { top: 50%; left: 20%; border-color: rgba(231,76,60,0.3); }
+
+.loop-node.strategy .loop-node-label { color: var(--primary); }
+.loop-node.human .loop-node-label    { color: var(--success); }
+.loop-node.execution .loop-node-label { color: var(--warning); }
+.loop-node.results .loop-node-label  { color: var(--stanley-red); }
+
+/* Center label */
+.loop-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 2;
+}
+
+.loop-center-label span {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+@media (max-width: 640px) {
+  .loop-visual { max-width: 360px; }
+  .loop-node {
+    width: 130px;
+    padding: 10px 12px;
+  }
+  .loop-node-label { font-size: 0.72rem; }
+  .loop-node-desc { font-size: 0.65rem; }
+  .loop-node.strategy   { top: 2%;  }
+  .loop-node.human      { left: 85%; }
+  .loop-node.execution  { top: 98%; }
+  .loop-node.results    { left: 15%; }
+}
+
+.loop-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.loop-card {
+  background: var(--surface);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+  padding: 32px 28px;
+}
+
+.loop-card-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+.loop-card h3 {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.loop-card p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.loop-keyline {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 32px;
+  font-size: 1.1rem;
+  color: var(--text-light);
+  font-weight: 500;
+  line-height: 1.7;
+  padding: 32px;
+  border-left: 2px solid var(--primary);
+  background: rgba(59, 130, 246, 0.03);
+  border-radius: 0 8px 8px 0;
+  text-align: left;
+}
+
+/* ===== CASE STUDIES ===== */
+.cases-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.case-card {
+  background: var(--surface);
+  border: 1px solid rgba(59, 130, 246, 0.08);
+  border-radius: 12px;
+  padding: 40px 36px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.case-card:hover {
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 40px rgba(59, 130, 246, 0.06);
+  transform: translateY(-2px);
+}
+
+.case-card.featured {
+  border-color: rgba(59, 130, 246, 0.15);
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(59, 130, 246, 0.04) 100%);
+}
+
+.case-card-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.case-card h3 {
+  font-size: 1.35rem;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.case-card p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 12px;
+}
+
+.case-card p:last-child {
+  margin-bottom: 0;
+}
+
+.case-broke {
+  font-style: italic;
+  color: rgba(148, 163, 184, 0.8) !important;
+}
+
+.case-card .stat-highlight {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.cases-supporting {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* ===== NUMBERS ===== */
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+}
+
+.number-card {
+  text-align: center;
+  padding: 40px 24px;
+  background: var(--surface);
+  border: 1px solid rgba(59, 130, 246, 0.06);
+  border-radius: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.number-card:hover {
+  border-color: rgba(59, 130, 246, 0.15);
+}
+
+.number-value {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.number-label {
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+/* ===== SECURITY ===== */
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.security-item {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid rgba(59, 130, 246, 0.06);
+  border-radius: 10px;
+}
+
+.security-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+  color: var(--success);
+}
+
+.security-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.security-text {
+  font-size: 0.95rem;
+  color: rgba(237, 242, 252, 0.8);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.security-compliance {
+  text-align: center;
+  padding: 40px;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.02);
+  margin-bottom: 32px;
+}
+
+.security-compliance p {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.security-compliance .compliance-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 300;
+  margin-top: 8px;
+}
+
+.security-threat {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.security-threat p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.security-threat strong {
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* ===== OPERATORS ===== */
+.operators-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.operators-text h3 {
+  font-size: 1.5rem;
+  color: var(--text-light);
+  margin-bottom: 24px;
+}
+
+.operators-list {
+  list-style: none;
+}
+
+.operators-list li {
+  position: relative;
+  padding: 16px 0 16px 32px;
+  font-size: 1rem;
+  color: rgba(237, 242, 252, 0.85);
+  line-height: 1.7;
+  font-weight: 300;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.06);
+}
+
+.operators-list li:last-child {
+  border-bottom: none;
+}
+
+.operators-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 24px;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.operators-aside {
+  background: var(--surface);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+  padding: 40px;
+}
+
+.operators-aside h4 {
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+.operators-aside p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 16px;
+}
+
+.operators-aside p:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== FOUNDER ===== */
+.founder-content {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.founder-content p {
+  font-size: 1.05rem;
+  color: rgba(237, 242, 252, 0.85);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.founder-content p:last-child {
+  margin-bottom: 0;
+}
+
+.founder-content strong {
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.founder-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+.founder-role {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  border-top: 1px solid rgba(59, 130, 246, 0.08);
+  padding: 48px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-logo svg {
+  width: 28px;
+  height: 28px;
+}
+
+.footer-logo .wordmark {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.footer-logo .fb-text { color: var(--text-light); }
+.footer-logo .fb-ai { color: var(--primary); text-transform: uppercase; }
+
+.footer-center {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.footer-center a {
+  color: var(--muted);
+  transition: color 0.2s ease;
+}
+
+.footer-center a:hover {
+  color: var(--text-light);
+}
+
+.footer-right {
+  font-size: 0.8rem;
+  color: rgba(148, 163, 184, 0.5);
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .loop-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .cases-supporting {
+    grid-template-columns: 1fr;
+  }
+
+  .security-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .operators-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 44px 0;
+  }
+
+  .hero {
+    padding: 72px 24px 48px;
+    min-height: 100svh;
+  }
+
+  .hero-logo svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .hero-logo .wordmark {
+    font-size: 1.5rem;
+  }
+
+  .loop-visual {
+    margin-bottom: 28px;
+  }
+
+  .loop-node {
+    padding: 10px 12px;
+  }
+
+  .case-card {
+    padding: 28px 24px;
+  }
+
+  .numbers-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .number-card {
+    padding: 28px 16px;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-center {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .numbers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .loop-node {
+    min-width: 140px;
+    padding: 14px 16px;
+  }
+
+  .loop-node-label {
+    font-size: 0.85rem;
+  }
+
+  .loop-node-desc {
+    font-size: 0.75rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" aria-label="FleetBrain home">
+      <!-- Brain icon SVG -->
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 16c-6 2-10 8-10 15 0 5 2 9 5 12l3 5h6l1-4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M44 16c6 2 10 8 10 15 0 5-2 9-5 12l-3 5h-6l-1-4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M24 48h16" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M26 52h12" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M32 12V8" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M20 16c4-4 8-5 12-4 4-1 8 0 12 4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Nodes -->
+        <circle cx="24" cy="24" r="2.5" fill="#3b82f6"/>
+        <circle cx="32" cy="20" r="2.5" fill="#3b82f6"/>
+        <circle cx="40" cy="24" r="2.5" fill="#3b82f6"/>
+        <circle cx="28" cy="32" r="2.5" fill="#3b82f6"/>
+        <circle cx="36" cy="32" r="2.5" fill="#3b82f6"/>
+        <circle cx="32" cy="40" r="2.5" fill="#3b82f6"/>
+        <!-- Node connections -->
+        <line x1="24" y1="24" x2="32" y2="20" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="32" y1="20" x2="40" y2="24" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="24" y1="24" x2="28" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="40" y1="24" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="28" y1="32" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="28" y1="32" x2="32" y2="40" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="36" y1="32" x2="32" y2="40" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="32" y1="20" x2="28" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"/>
+        <line x1="32" y1="20" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"/>
+        <!-- Forward arrow -->
+        <path d="M44 28l5-2" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+        <path d="M46 32l4 0" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+        <path d="M44 36l5 2" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+      <span class="nav-wordmark"><span class="fb-text">fleetbr</span><span class="fb-ai">ai</span><span class="fb-text">n</span></span>
+    </a>
+
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#how-it-works" data-nav>How It Works</a></li>
+      <li><a href="#case-studies" data-nav>Evidence</a></li>
+      <li><a href="#numbers" data-nav>Numbers</a></li>
+      <li><a href="#security" data-nav>Security</a></li>
+      <li><a href="#operators" data-nav>For Operators</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-logo reveal">
+      <!-- Full logo -->
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 16c-6 2-10 8-10 15 0 5 2 9 5 12l3 5h6l1-4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M44 16c6 2 10 8 10 15 0 5-2 9-5 12l-3 5h-6l-1-4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M24 48h16" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M26 52h12" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M32 12V8" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M20 16c4-4 8-5 12-4 4-1 8 0 12 4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="24" cy="24" r="2.5" fill="#3b82f6"/>
+        <circle cx="32" cy="20" r="2.5" fill="#3b82f6"/>
+        <circle cx="40" cy="24" r="2.5" fill="#3b82f6"/>
+        <circle cx="28" cy="32" r="2.5" fill="#3b82f6"/>
+        <circle cx="36" cy="32" r="2.5" fill="#3b82f6"/>
+        <circle cx="32" cy="40" r="2.5" fill="#3b82f6"/>
+        <line x1="24" y1="24" x2="32" y2="20" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="32" y1="20" x2="40" y2="24" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="24" y1="24" x2="28" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="40" y1="24" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="28" y1="32" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="28" y1="32" x2="32" y2="40" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="36" y1="32" x2="32" y2="40" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+        <line x1="32" y1="20" x2="28" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"/>
+        <line x1="32" y1="20" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"/>
+        <path d="M44 28l5-2" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+        <path d="M46 32l4 0" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+        <path d="M44 36l5 2" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+      <span class="wordmark"><span class="fb-text">fleetbr</span><span class="fb-ai">ai</span><span class="fb-text">n</span></span>
+    </div>
+
+    <h1 class="reveal reveal-delay-1">AI agents that get smarter every time they work.</h1>
+
+    <p class="hero-sub reveal reveal-delay-2">FleetBrain deploys managed AI agents for businesses. A human reviews every action. Every correction is permanent. Every deployment inherits everything from the ones before it.</p>
+
+    <a href="#how-it-works" class="cta-btn reveal reveal-delay-3">See How It Works</a>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-title">The Loop</h2>
+      <p class="section-subtitle">Your AI agent learns from every engagement. When something's off, a human catches it and fixes it permanently. Your agent never makes the same mistake twice.</p>
+    </div>
+
+    <!-- Loop Diagram — Circular -->
+    <div class="loop-visual reveal reveal-delay-1">
+      <div class="loop-ring">
+        <!-- Circular arrows connecting the four nodes -->
+        <svg class="loop-ring-svg" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Circular track -->
+          <circle cx="200" cy="200" r="140" stroke="rgba(59,130,246,0.08)" stroke-width="1" fill="none"/>
+          <!-- Clockwise arc arrows -->
+          <!-- Top to Right -->
+          <path d="M 270 72 A 140 140 0 0 1 335 175" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.4"/>
+          <polygon points="338,175 330,168 330,180" fill="#3b82f6" opacity="0.5"/>
+          <!-- Right to Bottom -->
+          <path d="M 335 225 A 140 140 0 0 1 270 328" stroke="#22c55e" stroke-width="1.5" fill="none" opacity="0.4"/>
+          <polygon points="270,332 277,324 265,324" fill="#22c55e" opacity="0.5"/>
+          <!-- Bottom to Left -->
+          <path d="M 130 328 A 140 140 0 0 1 65 225" stroke="#eab308" stroke-width="1.5" fill="none" opacity="0.4"/>
+          <polygon points="62,225 70,232 70,220" fill="#eab308" opacity="0.5"/>
+          <!-- Left to Top — the return arrow, prominent -->
+          <path d="M 65 175 A 140 140 0 0 1 130 72" stroke="#e74c3c" stroke-width="2.5" fill="none" opacity="0.6"/>
+          <polygon points="130,68 122,76 136,76" fill="#e74c3c" opacity="0.7"/>
+          <!-- FEEDS BACK label — horizontal -->
+          <text x="52" y="128" fill="#e74c3c" font-size="11" font-family="Syne,sans-serif" font-weight="600" opacity="0.7">FEEDS</text>
+          <text x="58" y="142" fill="#e74c3c" font-size="11" font-family="Syne,sans-serif" font-weight="600" opacity="0.7">BACK</text>
+        </svg>
+        <!-- Nodes positioned at cardinal points -->
+        <div class="loop-node strategy">
+          <div class="loop-node-label">AI Research & Planning</div>
+          <div class="loop-node-desc">Analyzes data, builds recommendations</div>
+        </div>
+        <div class="loop-node human">
+          <div class="loop-node-label">Human Review</div>
+          <div class="loop-node-desc">Every action checked, mistakes caught</div>
+        </div>
+        <div class="loop-node execution">
+          <div class="loop-node-label">Agent Execution</div>
+          <div class="loop-node-desc">24/7 work on your behalf</div>
+        </div>
+        <div class="loop-node results">
+          <div class="loop-node-label">Real Results</div>
+          <div class="loop-node-desc">Outcomes improve the next cycle</div>
+        </div>
+        <div class="loop-center-label">
+          <span>The Loop</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Three Cards -->
+    <div class="loop-cards">
+      <div class="loop-card reveal reveal-delay-1">
+        <div class="loop-card-num">01</div>
+        <h3>AI Research & Planning</h3>
+        <p>Your agent researches vendors, analyzes data, drafts communications, and builds recommendations. It draws on everything it's learned from prior engagements to give you better answers faster.</p>
+      </div>
+
+      <div class="loop-card reveal reveal-delay-2">
+        <div class="loop-card-num">02</div>
+        <h3>Human Review</h3>
+        <p>A human reviews every external action before it reaches anyone. When something's off, the correction is permanent. Your agent never makes the same mistake twice. And every fix improves every agent in the network -- not just yours.</p>
+      </div>
+
+      <div class="loop-card reveal reveal-delay-3">
+        <div class="loop-card-num">03</div>
+        <h3>Agent Execution</h3>
+        <p>Your agent works 24/7 -- research, email, scheduling, vendor comparison, financial analysis, consumer research. Whatever your business needs. Runs continuously for less than a dollar a day.</p>
+      </div>
+    </div>
+
+    <div class="loop-keyline reveal">
+      The system cannot get dumber. Every correction persists. Every deployment inherits everything from the ones before it.
+    </div>
+  </div>
+</section>
+
+<!-- ===== CASE STUDIES ===== -->
+<section class="section" id="case-studies">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">Case Studies</span>
+      <h2 class="section-title">The Evidence</h2>
+      <p class="section-subtitle">Real engagements. Real numbers. Including what broke.</p>
+    </div>
+
+    <!-- Featured Case -->
+    <div class="cases-grid reveal">
+      <div class="case-card featured">
+        <span class="case-card-label">Featured</span>
+        <h3>The Locksmith</h3>
+        <p>A locksmith operator in the Kansas City metro facing a $2,500 equipment decision messaged the agent while the operator was out shopping. Ten minutes later: local market data, a staged investment framework, live vendor comparison across three websites. <span class="stat-highlight">$267 in savings</span> identified.</p>
+        <p>The agent also made four mistakes. The operator caught all four and issued permanent corrections on the spot. Those corrections now apply to every future engagement.</p>
+        <p>That's the loop.</p>
+      </div>
+    </div>
+
+    <!-- Supporting Cases -->
+    <div class="cases-supporting">
+      <div class="case-card reveal reveal-delay-1">
+        <span class="case-card-label">Case Study</span>
+        <h3>The Business Partner</h3>
+        <p>A business partner joined the chat for the first time. Within twenty minutes he was issuing requests directly -- financial modeling, vendor negotiation, consumer research, tax strategy. The agent found a <span class="stat-highlight">$63,670 accounting gap</span> in their exit calculator that neither partner had noticed.</p>
+        <p class="case-broke">What broke: The waterfall labeling error made profitable scenarios look like losses.</p>
+      </div>
+
+      <div class="case-card reveal reveal-delay-2">
+        <span class="case-card-label">Case Study</span>
+        <h3>The Student</h3>
+        <p>The operator's teenage daughter found the agent on her own and used it for chemistry homework. Real-time tutoring -- caught her errors, guided her to correct answers without giving them away. This engagement created the system's minor-safety framework the same day.</p>
+        <p class="case-broke">What broke: The gap was structural -- no existing minor safety framework -- not a behavioral error. The fix was preemptive.</p>
+      </div>
+
+      <div class="case-card reveal reveal-delay-3">
+        <span class="case-card-label">Case Study</span>
+        <h3>The Family Demo</h3>
+        <p>A non-technical user in her 60s spent four hours asking about everything from water filters to garden design. When the agent couldn't solve her iPhone problem, it escalated to the strategy layer, which solved it in under a minute.</p>
+        <p>She came back unprompted two days later.</p>
+      </div>
+
+      <div class="case-card reveal reveal-delay-4">
+        <span class="case-card-label">Case Study</span>
+        <h3>The Vacation</h3>
+        <p>One user sent 184 messages over nine days across 14 different task types. When a security update accidentally locked her out, she troubleshot her own access to get back in.</p>
+        <p>Nobody asked her to.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== THE NUMBERS ===== -->
+<section class="section" id="numbers" style="background: rgba(17, 17, 24, 0.5);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">By the Numbers</span>
+      <h2 class="section-title">What It Costs. What It Saves.</h2>
+    </div>
+
+    <div class="numbers-grid">
+      <div class="number-card reveal reveal-delay-1">
+        <div class="number-value">$0.19/day</div>
+        <div class="number-label">Operating cost for a live AI agent running your business systems</div>
+      </div>
+
+      <div class="number-card reveal reveal-delay-2">
+        <div class="number-value">95%</div>
+        <div class="number-label">Cost reduction through architecture optimization.<br>$336/month down to $13-22/month</div>
+      </div>
+
+      <div class="number-card reveal reveal-delay-3">
+        <div class="number-value">10 min</div>
+        <div class="number-label">Market research, vendor comparison, and recommendation -- work that takes 2+ hours manually</div>
+      </div>
+
+      <div class="number-card reveal reveal-delay-1">
+        <div class="number-value">$267</div>
+        <div class="number-label">Saved on a single vendor comparison. First engagement.</div>
+      </div>
+
+      <div class="number-card reveal reveal-delay-2">
+        <div class="number-value">24/7</div>
+        <div class="number-label">Your agent works while you sleep, shop, or run your business</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECURITY & COMPLIANCE ===== -->
+<section class="section" id="security">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">Security &amp; Compliance</span>
+      <h2 class="section-title">Trust Architecture</h2>
+    </div>
+
+    <div class="security-grid">
+      <div class="security-item reveal reveal-delay-1">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">Human reviews every external action before it reaches anyone</div>
+      </div>
+
+      <div class="security-item reveal reveal-delay-2">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">AI agents run in isolated virtual machines</div>
+      </div>
+
+      <div class="security-item reveal reveal-delay-3">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">Credentials encrypted, never displayed in any channel. Zero-tolerance rule -- exists because it was violated once.</div>
+      </div>
+
+      <div class="security-item reveal reveal-delay-4">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">The "fish tank" model: you can see everything the agent does</div>
+      </div>
+
+      <div class="security-item reveal reveal-delay-5">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">Telegram DM pairing -- agent doesn't accept messages from unknown users</div>
+      </div>
+
+      <div class="security-item reveal reveal-delay-6">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">OpenClaw v2026.2.6 with built-in safety scanning</div>
+      </div>
+
+      <div class="security-item reveal reveal-delay-1">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">Minor-Context Mode -- age-appropriate behavioral constraints for minor users, operator-controlled</div>
+      </div>
+
+      <div class="security-item reveal reveal-delay-2">
+        <div class="security-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16.7 5L7.5 14.2 3.3 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="security-text">Regulated data handling -- clinical notes, financial records, and PHI flagged before processing</div>
+      </div>
+    </div>
+
+    <div class="security-compliance reveal">
+      <p>Architected for SOC 2, HIPAA, and NERC CIP compliance paths.</p>
+      <p class="compliance-note">Compliance-ready architecture. Certification in progress, not yet claimed.</p>
+    </div>
+
+    <div class="security-threat reveal">
+      <p>341 malicious AI agent skills identified on public marketplaces. A critical vulnerability (CVSS 8.8) patched in the framework FleetBrain runs on. Every week brings new reports of unsupervised AI agents causing problems.</p>
+      <p style="margin-top: 12px;"><strong>FleetBrain is the managed alternative.</strong> Human oversight is not a feature. It is the architecture.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OPERATOR TRACK SEPARATOR ===== -->
+<div class="track-separator" style="text-align: center; padding: 48px 24px; border-top: 1px solid rgba(59,130,246,0.12); border-bottom: 1px solid rgba(59,130,246,0.12); background: rgba(59,130,246,0.02);">
+  <p style="max-width: 640px; margin: 0 auto; font-size: 1rem; color: var(--muted); font-weight: 300; line-height: 1.7;">Already a business owner? The sections above are for you. What follows is for people who want to run FleetBrain for others.</p>
+</div>
+
+<!-- ===== FOR OPERATORS ===== -->
+<section class="section" id="operators" style="background: rgba(17, 17, 24, 0.5);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">For Operators</span>
+      <h2 class="section-title">Run AI Agents for Businesses</h2>
+      <p class="section-subtitle">No engineering background required.</p>
+    </div>
+
+    <div class="operators-content">
+      <div class="operators-text reveal">
+        <h3>What operators do</h3>
+        <ul class="operators-list">
+          <li>Manage a portfolio of 10-15 client AI agents</li>
+          <li>No coding required -- plain English instructions</li>
+          <li>Review outputs, issue corrections. Corrections stick permanently.</li>
+          <li>New operators inherit the full validated knowledge base on day one -- every correction from every prior engagement</li>
+        </ul>
+      </div>
+
+      <div class="operators-aside reveal reveal-delay-2">
+        <h4>Why this works</h4>
+        <p>The entire system was built by a non-technical sales professional. Operators don't need engineering backgrounds.</p>
+        <p>You manage AI agents the same way you'd manage a new employee: read the output, give clear feedback, expect improvement. The difference is that these corrections are permanent and compound across every client in the network.</p>
+        <p>If you can review a document and say what's wrong with it, you can be an operator.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== THE FOUNDER ===== -->
+<section class="section" id="founder">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">Founder</span>
+      <h2 class="section-title">Built by an Operator</h2>
+    </div>
+
+    <div class="founder-content">
+      <div class="founder-name reveal">Casey Lynch</div>
+      <div class="founder-role reveal">Founder, FleetBrain</div>
+
+      <p class="reveal">Twenty years of enterprise sales at companies like Red Hat and Kiewit. The insight that became FleetBrain: AI agents become valuable through accumulated corrections, not initial configuration.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 16c-6 2-10 8-10 15 0 5 2 9 5 12l3 5h6l1-4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M44 16c6 2 10 8 10 15 0 5-2 9-5 12l-3 5h-6l-1-4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M24 48h16" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M26 52h12" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M32 12V8" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M20 16c4-4 8-5 12-4 4-1 8 0 12 4" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="24" cy="24" r="2.5" fill="#3b82f6"/>
+          <circle cx="32" cy="20" r="2.5" fill="#3b82f6"/>
+          <circle cx="40" cy="24" r="2.5" fill="#3b82f6"/>
+          <circle cx="28" cy="32" r="2.5" fill="#3b82f6"/>
+          <circle cx="36" cy="32" r="2.5" fill="#3b82f6"/>
+          <circle cx="32" cy="40" r="2.5" fill="#3b82f6"/>
+          <line x1="24" y1="24" x2="32" y2="20" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+          <line x1="32" y1="20" x2="40" y2="24" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+          <line x1="24" y1="24" x2="28" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+          <line x1="40" y1="24" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+          <line x1="28" y1="32" x2="36" y2="32" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+          <line x1="28" y1="32" x2="32" y2="40" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+          <line x1="36" y1="32" x2="32" y2="40" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+          <path d="M44 28l5-2" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+          <path d="M46 32l4 0" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+          <path d="M44 36l5 2" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+        </svg>
+        <span class="wordmark"><span class="fb-text">fleetbr</span><span class="fb-ai">ai</span><span class="fb-text">n</span></span>
+      </div>
+
+      <div class="footer-center">
+        <span>FleetBrain &copy; 2026</span>
+        <a href="mailto:casey@fleetbrain.ai">casey@fleetbrain.ai</a>
+        <a href="https://stanleybot.fleetbrain.ai">stanleybot.fleetbrain.ai</a>
+      </div>
+
+      <div class="footer-right">Built with the loop.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+(function() {
+  'use strict';
+
+  // === NAV SCROLL EFFECT ===
+  var nav = document.getElementById('nav');
+  var lastScroll = 0;
+
+  function onScroll() {
+    var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollY > 40) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+    lastScroll = scrollY;
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // === MOBILE NAV ===
+  var hamburger = document.getElementById('navHamburger');
+  var navLinks = document.getElementById('navLinks');
+
+  hamburger.addEventListener('click', function() {
+    hamburger.classList.toggle('open');
+    navLinks.classList.toggle('open');
+    document.body.style.overflow = navLinks.classList.contains('open') ? 'hidden' : '';
+  });
+
+  // Close mobile nav on link click
+  var navAnchors = document.querySelectorAll('[data-nav]');
+  for (var i = 0; i < navAnchors.length; i++) {
+    navAnchors[i].addEventListener('click', function() {
+      hamburger.classList.remove('open');
+      navLinks.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  }
+
+  // === INTERSECTION OBSERVER FOR REVEAL ANIMATIONS ===
+  if ('IntersectionObserver' in window) {
+    var revealElements = document.querySelectorAll('.reveal');
+
+    var observer = new IntersectionObserver(function(entries) {
+      for (var j = 0; j < entries.length; j++) {
+        if (entries[j].isIntersecting) {
+          entries[j].target.classList.add('visible');
+          observer.unobserve(entries[j].target);
+        }
+      }
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    for (var k = 0; k < revealElements.length; k++) {
+      observer.observe(revealElements[k]);
+    }
+  } else {
+    // Fallback: show everything immediately
+    var allReveal = document.querySelectorAll('.reveal');
+    for (var l = 0; l < allReveal.length; l++) {
+      allReveal[l].classList.add('visible');
+    }
+  }
+
+  // === SMOOTH SCROLL FOR ANCHOR LINKS ===
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('a[href^="#"]');
+    if (!target) return;
+
+    var id = target.getAttribute('href');
+    if (id === '#') return;
+
+    var el = document.querySelector(id);
+    if (!el) return;
+
+    e.preventDefault();
+
+    var navHeight = nav.offsetHeight;
+    var top = el.getBoundingClientRect().top + window.pageYOffset - navHeight;
+
+    window.scrollTo({
+      top: top,
+      behavior: 'smooth'
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
