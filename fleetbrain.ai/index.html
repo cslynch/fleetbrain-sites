@@ -484,11 +484,11 @@ section {
   line-height: 1.4;
 }
 
-/* Node positions: top, right, bottom, left */
+/* Node positions: top, right, bottom, left — pulled inward to prevent clipping */
 .loop-node.strategy   { top: 4%;  left: 50%; border-color: rgba(59,130,246,0.4); }
-.loop-node.human      { top: 50%; left: 97%; border-color: rgba(34,197,94,0.4); }
+.loop-node.human      { top: 50%; left: 80%; border-color: rgba(34,197,94,0.4); }
 .loop-node.execution  { top: 96%; left: 50%; border-color: rgba(234,179,8,0.4); }
-.loop-node.results    { top: 50%; left: 3%;  border-color: rgba(231,76,60,0.3); }
+.loop-node.results    { top: 50%; left: 20%; border-color: rgba(231,76,60,0.3); }
 
 .loop-node.strategy .loop-node-label { color: var(--primary); }
 .loop-node.human .loop-node-label    { color: var(--success); }
@@ -523,9 +523,9 @@ section {
   .loop-node-label { font-size: 0.72rem; }
   .loop-node-desc { font-size: 0.65rem; }
   .loop-node.strategy   { top: 2%;  }
-  .loop-node.human      { left: 100%; }
+  .loop-node.human      { left: 85%; }
   .loop-node.execution  { top: 98%; }
-  .loop-node.results    { left: 0%; }
+  .loop-node.results    { left: 15%; }
 }
 
 .loop-cards {
@@ -579,39 +579,6 @@ section {
   background: rgba(59, 130, 246, 0.03);
   border-radius: 0 8px 8px 0;
   text-align: left;
-}
-
-.loop-stats {
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.95rem;
-  font-weight: 300;
-  line-height: 1.7;
-}
-
-/* ===== BODEWELL DOCTRINE ===== */
-.doctrine-content {
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-.doctrine-content p {
-  margin-bottom: 24px;
-  font-size: 1.05rem;
-  color: rgba(237, 242, 252, 0.85);
-  line-height: 1.8;
-  font-weight: 300;
-}
-
-.doctrine-content strong {
-  color: var(--text-light);
-  font-weight: 500;
-}
-
-.doctrine-highlight {
-  border-left: 2px solid var(--primary);
-  padding-left: 24px;
-  margin: 32px 0;
 }
 
 /* ===== CASE STUDIES ===== */
@@ -1111,7 +1078,6 @@ section {
 
     <ul class="nav-links" id="navLinks">
       <li><a href="#how-it-works" data-nav>How It Works</a></li>
-      <li><a href="#doctrine" data-nav>The Doctrine</a></li>
       <li><a href="#case-studies" data-nav>Evidence</a></li>
       <li><a href="#numbers" data-nav>Numbers</a></li>
       <li><a href="#security" data-nav>Security</a></li>
@@ -1172,7 +1138,7 @@ section {
     <div class="section-header reveal">
       <span class="section-label">How It Works</span>
       <h2 class="section-title">The Loop</h2>
-      <p class="section-subtitle">A recursive knowledge cycle where every correction makes the system permanently better.</p>
+      <p class="section-subtitle">Your AI agent learns from every engagement. When something's off, a human catches it and fixes it permanently. Your agent never makes the same mistake twice.</p>
     </div>
 
     <!-- Loop Diagram — Circular -->
@@ -1182,7 +1148,7 @@ section {
         <svg class="loop-ring-svg" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
           <!-- Circular track -->
           <circle cx="200" cy="200" r="140" stroke="rgba(59,130,246,0.08)" stroke-width="1" fill="none"/>
-          <!-- Clockwise arc arrows: top→right, right→bottom, bottom→left, left→top -->
+          <!-- Clockwise arc arrows -->
           <!-- Top to Right -->
           <path d="M 270 72 A 140 140 0 0 1 335 175" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.4"/>
           <polygon points="338,175 330,168 330,180" fill="#3b82f6" opacity="0.5"/>
@@ -1192,27 +1158,29 @@ section {
           <!-- Bottom to Left -->
           <path d="M 130 328 A 140 140 0 0 1 65 225" stroke="#eab308" stroke-width="1.5" fill="none" opacity="0.4"/>
           <polygon points="62,225 70,232 70,220" fill="#eab308" opacity="0.5"/>
-          <!-- Left to Top (the return — make this prominent) -->
+          <!-- Left to Top — the return arrow, prominent -->
           <path d="M 65 175 A 140 140 0 0 1 130 72" stroke="#e74c3c" stroke-width="2.5" fill="none" opacity="0.6"/>
           <polygon points="130,68 122,76 136,76" fill="#e74c3c" opacity="0.7"/>
-          <text x="78" y="120" fill="#e74c3c" font-size="11" font-family="Syne,sans-serif" font-weight="600" opacity="0.7" transform="rotate(-50, 78, 120)">FEEDS BACK</text>
+          <!-- FEEDS BACK label — horizontal -->
+          <text x="52" y="128" fill="#e74c3c" font-size="11" font-family="Syne,sans-serif" font-weight="600" opacity="0.7">FEEDS</text>
+          <text x="58" y="142" fill="#e74c3c" font-size="11" font-family="Syne,sans-serif" font-weight="600" opacity="0.7">BACK</text>
         </svg>
         <!-- Nodes positioned at cardinal points -->
         <div class="loop-node strategy">
-          <div class="loop-node-label">Strategy Layer</div>
-          <div class="loop-node-desc">AI generates plans and decisions</div>
+          <div class="loop-node-label">AI Research & Planning</div>
+          <div class="loop-node-desc">Analyzes data, builds recommendations</div>
         </div>
         <div class="loop-node human">
-          <div class="loop-node-label">Human Quality Gate</div>
-          <div class="loop-node-desc">Every action reviewed, corrections permanent</div>
+          <div class="loop-node-label">Human Review</div>
+          <div class="loop-node-desc">Every action checked, mistakes caught</div>
         </div>
         <div class="loop-node execution">
-          <div class="loop-node-label">Execution Layer</div>
-          <div class="loop-node-desc">24/7 AI handles the work</div>
+          <div class="loop-node-label">Agent Execution</div>
+          <div class="loop-node-desc">24/7 work on your behalf</div>
         </div>
         <div class="loop-node results">
-          <div class="loop-node-label">Real-World Results</div>
-          <div class="loop-node-desc">Outcomes feed back into strategy</div>
+          <div class="loop-node-label">Real Results</div>
+          <div class="loop-node-desc">Outcomes improve the next cycle</div>
         </div>
         <div class="loop-center-label">
           <span>The Loop</span>
@@ -1224,51 +1192,25 @@ section {
     <div class="loop-cards">
       <div class="loop-card reveal reveal-delay-1">
         <div class="loop-card-num">01</div>
-        <h3>Strategy Layer</h3>
-        <p>AI generates playbooks, research plans, and architecture decisions. It synthesizes data across all prior engagements and proposes next actions for operator review.</p>
+        <h3>AI Research & Planning</h3>
+        <p>Your agent researches vendors, analyzes data, drafts communications, and builds recommendations. It draws on everything it's learned from prior engagements to give you better answers faster.</p>
       </div>
 
       <div class="loop-card reveal reveal-delay-2">
         <div class="loop-card-num">02</div>
-        <h3>Human Circuit Breaker</h3>
-        <p>Every external action is reviewed by a human operator. Corrections are permanent. This is the training signal. The operator's judgment is what converts raw AI execution into validated knowledge.</p>
+        <h3>Human Review</h3>
+        <p>A human reviews every external action before it reaches anyone. When something's off, the correction is permanent. Your agent never makes the same mistake twice. And every fix improves every agent in the network -- not just yours.</p>
       </div>
 
       <div class="loop-card reveal reveal-delay-3">
         <div class="loop-card-num">03</div>
-        <h3>Execution Layer</h3>
-        <p>24/7 AI agent handles research, email, scheduling, browser automation, financial analysis, consumer research -- anything the business needs. Runs continuously, costs pennies.</p>
+        <h3>Agent Execution</h3>
+        <p>Your agent works 24/7 -- research, email, scheduling, vendor comparison, financial analysis, consumer research. Whatever your business needs. Runs continuously for less than a dollar a day.</p>
       </div>
     </div>
 
     <div class="loop-keyline reveal">
       The system cannot get dumber. Every correction persists. Every deployment inherits everything from the ones before it.
-    </div>
-
-    <p class="loop-stats reveal">
-      14 permanent behavioral rules. 500+ correction cycles. 7 validated case studies across business research, academic tutoring, financial analysis, trip coordination, and consumer support.
-    </p>
-  </div>
-</section>
-
-<!-- ===== THE BODEWELL DOCTRINE ===== -->
-<section class="section" id="doctrine" style="background: rgba(17, 17, 24, 0.5);">
-  <div class="container">
-    <div class="section-header reveal">
-      <span class="section-label">Operating Protocol</span>
-      <h2 class="section-title">The Bodewell Doctrine</h2>
-    </div>
-
-    <div class="doctrine-content">
-      <p class="reveal">The operating protocol is called the Bodewell Doctrine. Operators don't write code. They read output and say yes or no. Instructions are plain English, not configuration files. The control bus between the strategy layer and the execution layer is human language -- the same way you'd manage a new employee.</p>
-
-      <div class="doctrine-highlight reveal">
-        <p>Think of it as <strong>rubber bands on the claws</strong>. Safety controls that let the agent work while preventing harm. The agent has capability. The operator has authority. The corrections are the product.</p>
-      </div>
-
-      <p class="reveal">Every correction issued by an operator becomes a permanent behavioral rule. These rules accumulate across deployments. A new client engagement on day one inherits the full weight of every correction from every prior engagement. The knowledge base doesn't reset. It compounds.</p>
-
-      <p class="reveal">This means the agent's value increases with every hour of supervised operation. Not because the model changes, but because the operating constraints get more precise. The Bodewell Doctrine turns human judgment into durable infrastructure.</p>
     </div>
   </div>
 </section>
@@ -1331,13 +1273,13 @@ section {
   <div class="container">
     <div class="section-header reveal">
       <span class="section-label">By the Numbers</span>
-      <h2 class="section-title">The Numbers</h2>
+      <h2 class="section-title">What It Costs. What It Saves.</h2>
     </div>
 
     <div class="numbers-grid">
       <div class="number-card reveal reveal-delay-1">
         <div class="number-value">$0.19/day</div>
-        <div class="number-label">Execution cost running live business systems</div>
+        <div class="number-label">Operating cost for a live AI agent running your business systems</div>
       </div>
 
       <div class="number-card reveal reveal-delay-2">
@@ -1347,27 +1289,17 @@ section {
 
       <div class="number-card reveal reveal-delay-3">
         <div class="number-value">10 min</div>
-        <div class="number-label">Research that would take 2+ hours manually</div>
+        <div class="number-label">Market research, vendor comparison, and recommendation -- work that takes 2+ hours manually</div>
       </div>
 
       <div class="number-card reveal reveal-delay-1">
-        <div class="number-value">14</div>
-        <div class="number-label">Permanent behavioral rules, each from a real failure</div>
+        <div class="number-value">$267</div>
+        <div class="number-label">Saved on a single vendor comparison. First engagement.</div>
       </div>
 
       <div class="number-card reveal reveal-delay-2">
-        <div class="number-value">500+</div>
-        <div class="number-label">Correction cycles</div>
-      </div>
-
-      <div class="number-card reveal reveal-delay-3">
-        <div class="number-value">7</div>
-        <div class="number-label">Validated case studies across 6 domains</div>
-      </div>
-
-      <div class="number-card reveal reveal-delay-1">
-        <div class="number-value">10 days</div>
-        <div class="number-label">Time from concept to running company (Case Study #000)</div>
+        <div class="number-value">24/7</div>
+        <div class="number-label">Your agent works while you sleep, shop, or run your business</div>
       </div>
     </div>
   </div>
@@ -1451,13 +1383,18 @@ section {
   </div>
 </section>
 
+<!-- ===== OPERATOR TRACK SEPARATOR ===== -->
+<div class="track-separator" style="text-align: center; padding: 48px 24px; border-top: 1px solid rgba(59,130,246,0.12); border-bottom: 1px solid rgba(59,130,246,0.12); background: rgba(59,130,246,0.02);">
+  <p style="max-width: 640px; margin: 0 auto; font-size: 1rem; color: var(--muted); font-weight: 300; line-height: 1.7;">Already a business owner? The sections above are for you. What follows is for people who want to run FleetBrain for others.</p>
+</div>
+
 <!-- ===== FOR OPERATORS ===== -->
 <section class="section" id="operators" style="background: rgba(17, 17, 24, 0.5);">
   <div class="container">
     <div class="section-header reveal">
       <span class="section-label">For Operators</span>
-      <h2 class="section-title">The Neo Model</h2>
-      <p class="section-subtitle">Manage AI agents for businesses. No engineering background required.</p>
+      <h2 class="section-title">Run AI Agents for Businesses</h2>
+      <p class="section-subtitle">No engineering background required.</p>
     </div>
 
     <div class="operators-content">
@@ -1467,13 +1404,13 @@ section {
           <li>Manage a portfolio of 10-15 client AI agents</li>
           <li>No coding required -- plain English instructions</li>
           <li>Review outputs, issue corrections. Corrections stick permanently.</li>
-          <li>New operators inherit the full validated knowledge base on day one -- 14 rules, 7 case studies, 500+ corrections</li>
+          <li>New operators inherit the full validated knowledge base on day one -- every correction from every prior engagement</li>
         </ul>
       </div>
 
       <div class="operators-aside reveal reveal-delay-2">
         <h4>Why this works</h4>
-        <p>The entire system was built by a non-technical sales professional. The Bodewell Doctrine means operators don't need engineering backgrounds.</p>
+        <p>The entire system was built by a non-technical sales professional. Operators don't need engineering backgrounds.</p>
         <p>You manage AI agents the same way you'd manage a new employee: read the output, give clear feedback, expect improvement. The difference is that these corrections are permanent and compound across every client in the network.</p>
         <p>If you can review a document and say what's wrong with it, you can be an operator.</p>
       </div>
@@ -1493,11 +1430,7 @@ section {
       <div class="founder-name reveal">Casey Lynch</div>
       <div class="founder-role reveal">Founder, FleetBrain</div>
 
-      <p class="reveal">Casey Lynch built FleetBrain in 10 days with no engineering background, no funding, and no technical team. Twenty years of enterprise sales at companies like Red Hat and Kiewit.</p>
-
-      <p class="reveal">The insight: AI agents become valuable through accumulated corrections, not initial configuration. The human judgment layer is what converts AI execution into validated knowledge.</p>
-
-      <p class="reveal" style="color: var(--muted);">The case studies speak for themselves.</p>
+      <p class="reveal">Twenty years of enterprise sales at companies like Red Hat and Kiewit. The insight that became FleetBrain: AI agents become valuable through accumulated corrections, not initial configuration.</p>
     </div>
   </div>
 </section>
