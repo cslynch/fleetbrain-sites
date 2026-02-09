@@ -298,7 +298,7 @@ section {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 120px 24px 100px;
+  padding: 80px 24px 60px;
   position: relative;
 }
 
@@ -311,7 +311,7 @@ section {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  margin-bottom: 56px;
+  margin-bottom: 36px;
 }
 
 .hero-logo svg {
@@ -341,7 +341,7 @@ section {
   font-size: clamp(1.05rem, 2vw, 1.2rem);
   color: var(--muted);
   max-width: 640px;
-  margin: 0 auto 48px;
+  margin: 0 auto 32px;
   line-height: 1.8;
   font-weight: 300;
 }
@@ -395,12 +395,12 @@ section {
 
 /* ===== SECTION GENERAL ===== */
 .section {
-  padding: 100px 0;
+  padding: 60px 0;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 64px;
+  margin-bottom: 40px;
 }
 
 .section-label {
@@ -436,117 +436,103 @@ section {
   opacity: 0.5;
 }
 
-/* ===== HOW IT WORKS — THE LOOP ===== */
+/* ===== HOW IT WORKS — THE LOOP (CIRCULAR) ===== */
 .loop-visual {
-  max-width: 700px;
-  margin: 0 auto 72px;
+  max-width: 600px;
+  margin: 0 auto 36px;
   position: relative;
 }
 
-.loop-diagram {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
+.loop-ring {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
 }
 
-.loop-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.loop-ring svg.loop-ring-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
 }
 
 .loop-node {
+  position: absolute;
   background: var(--surface);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 12px;
-  padding: 20px 28px;
+  padding: 16px 20px;
   text-align: center;
-  min-width: 200px;
-  position: relative;
+  width: 190px;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
 .loop-node-label {
   font-family: 'Syne', sans-serif;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: var(--text-light);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .loop-node-desc {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--muted);
   font-weight: 300;
+  line-height: 1.4;
 }
 
-.loop-node.strategy { border-color: rgba(59, 130, 246, 0.4); }
-.loop-node.human { border-color: rgba(34, 197, 94, 0.4); }
-.loop-node.execution { border-color: rgba(234, 179, 8, 0.4); }
-.loop-node.results { border-color: rgba(231, 76, 60, 0.3); }
+/* Node positions: top, right, bottom, left */
+.loop-node.strategy   { top: 4%;  left: 50%; border-color: rgba(59,130,246,0.4); }
+.loop-node.human      { top: 50%; left: 97%; border-color: rgba(34,197,94,0.4); }
+.loop-node.execution  { top: 96%; left: 50%; border-color: rgba(234,179,8,0.4); }
+.loop-node.results    { top: 50%; left: 3%;  border-color: rgba(231,76,60,0.3); }
 
 .loop-node.strategy .loop-node-label { color: var(--primary); }
-.loop-node.human .loop-node-label { color: var(--success); }
+.loop-node.human .loop-node-label    { color: var(--success); }
 .loop-node.execution .loop-node-label { color: var(--warning); }
-.loop-node.results .loop-node-label { color: var(--stanley-red); }
+.loop-node.results .loop-node-label  { color: var(--stanley-red); }
 
-.loop-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 0;
-  color: var(--muted);
-  font-size: 0.75rem;
-  opacity: 0.6;
-}
-
-.loop-arrow svg {
-  width: 20px;
-  height: 20px;
-}
-
-.loop-arrow-side {
-  color: var(--muted);
-  opacity: 0.6;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-}
-
-.loop-arrow-side svg {
-  width: 20px;
-  height: 20px;
-}
-
-.loop-cycle-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.loop-side-track {
+/* Center label */
+.loop-center-label {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 80px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 2;
 }
 
-.loop-side-track.left {
-  right: calc(100% + 24px);
+.loop-center-label span {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
 }
 
-.loop-side-track.right {
-  left: calc(100% + 24px);
+@media (max-width: 640px) {
+  .loop-visual { max-width: 360px; }
+  .loop-node {
+    width: 130px;
+    padding: 10px 12px;
+  }
+  .loop-node-label { font-size: 0.72rem; }
+  .loop-node-desc { font-size: 0.65rem; }
+  .loop-node.strategy   { top: 2%;  }
+  .loop-node.human      { left: 100%; }
+  .loop-node.execution  { top: 98%; }
+  .loop-node.results    { left: 0%; }
 }
 
 .loop-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  margin-bottom: 56px;
+  margin-bottom: 36px;
 }
 
 .loop-card {
@@ -740,7 +726,7 @@ section {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
 .security-item {
@@ -1005,11 +991,11 @@ section {
 
 @media (max-width: 768px) {
   .section {
-    padding: 72px 0;
+    padding: 44px 0;
   }
 
   .hero {
-    padding: 100px 24px 80px;
+    padding: 72px 24px 48px;
     min-height: 100svh;
   }
 
@@ -1023,12 +1009,11 @@ section {
   }
 
   .loop-visual {
-    margin-bottom: 48px;
+    margin-bottom: 28px;
   }
 
   .loop-node {
-    min-width: 160px;
-    padding: 16px 20px;
+    padding: 10px 12px;
   }
 
   .case-card {
@@ -1190,45 +1175,47 @@ section {
       <p class="section-subtitle">A recursive knowledge cycle where every correction makes the system permanently better.</p>
     </div>
 
-    <!-- Loop Diagram -->
+    <!-- Loop Diagram — Circular -->
     <div class="loop-visual reveal reveal-delay-1">
-      <div class="loop-diagram">
-        <div class="loop-row">
-          <div class="loop-node strategy">
-            <div class="loop-node-label">Strategy Layer</div>
-            <div class="loop-node-desc">AI generates plans and decisions</div>
-          </div>
+      <div class="loop-ring">
+        <!-- Circular arrows connecting the four nodes -->
+        <svg class="loop-ring-svg" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Circular track -->
+          <circle cx="200" cy="200" r="140" stroke="rgba(59,130,246,0.08)" stroke-width="1" fill="none"/>
+          <!-- Clockwise arc arrows: top→right, right→bottom, bottom→left, left→top -->
+          <!-- Top to Right -->
+          <path d="M 270 72 A 140 140 0 0 1 335 175" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.4"/>
+          <polygon points="338,175 330,168 330,180" fill="#3b82f6" opacity="0.5"/>
+          <!-- Right to Bottom -->
+          <path d="M 335 225 A 140 140 0 0 1 270 328" stroke="#22c55e" stroke-width="1.5" fill="none" opacity="0.4"/>
+          <polygon points="270,332 277,324 265,324" fill="#22c55e" opacity="0.5"/>
+          <!-- Bottom to Left -->
+          <path d="M 130 328 A 140 140 0 0 1 65 225" stroke="#eab308" stroke-width="1.5" fill="none" opacity="0.4"/>
+          <polygon points="62,225 70,232 70,220" fill="#eab308" opacity="0.5"/>
+          <!-- Left to Top (the return — make this prominent) -->
+          <path d="M 65 175 A 140 140 0 0 1 130 72" stroke="#e74c3c" stroke-width="2.5" fill="none" opacity="0.6"/>
+          <polygon points="130,68 122,76 136,76" fill="#e74c3c" opacity="0.7"/>
+          <text x="78" y="120" fill="#e74c3c" font-size="11" font-family="Syne,sans-serif" font-weight="600" opacity="0.7" transform="rotate(-50, 78, 120)">FEEDS BACK</text>
+        </svg>
+        <!-- Nodes positioned at cardinal points -->
+        <div class="loop-node strategy">
+          <div class="loop-node-label">Strategy Layer</div>
+          <div class="loop-node-desc">AI generates plans and decisions</div>
         </div>
-        <div class="loop-arrow">
-          <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v12M6 12l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="loop-node human">
+          <div class="loop-node-label">Human Quality Gate</div>
+          <div class="loop-node-desc">Every action reviewed, corrections permanent</div>
         </div>
-        <div class="loop-row">
-          <div class="loop-node human">
-            <div class="loop-node-label">Human Quality Gate</div>
-            <div class="loop-node-desc">Every action reviewed, corrections permanent</div>
-          </div>
+        <div class="loop-node execution">
+          <div class="loop-node-label">Execution Layer</div>
+          <div class="loop-node-desc">24/7 AI handles the work</div>
         </div>
-        <div class="loop-arrow">
-          <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v12M6 12l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="loop-node results">
+          <div class="loop-node-label">Real-World Results</div>
+          <div class="loop-node-desc">Outcomes feed back into strategy</div>
         </div>
-        <div class="loop-row">
-          <div class="loop-node execution">
-            <div class="loop-node-label">Execution Layer</div>
-            <div class="loop-node-desc">24/7 AI handles the work</div>
-          </div>
-        </div>
-        <div class="loop-arrow">
-          <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v12M6 12l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="loop-row">
-          <div class="loop-node results">
-            <div class="loop-node-label">Real-World Results</div>
-            <div class="loop-node-desc">Outcomes feed back into strategy</div>
-          </div>
-        </div>
-        <div class="loop-arrow" style="opacity: 0.4;">
-          <svg viewBox="0 0 24 24" fill="none" style="width: 24px; height: 24px;"><path d="M12 20V4M5 11l7-7 7 7" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span style="font-size: 0.75rem; color: var(--primary); margin-left: 8px; font-weight: 500;">back to Strategy</span>
+        <div class="loop-center-label">
+          <span>The Loop</span>
         </div>
       </div>
     </div>
