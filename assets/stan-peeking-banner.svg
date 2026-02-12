@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs>
+    <filter id="eyeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <radialGradient id="bodyGrad" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#FF7A5C"/>
+      <stop offset="50%" stop-color="#E8604A"/>
+      <stop offset="100%" stop-color="#C44835"/>
+    </radialGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0D0B14"/>
+      <stop offset="100%" stop-color="#151220"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#bgGrad)"/>
+  <ellipse cx="600" cy="520" rx="220" ry="230" fill="url(#bodyGrad)"/>
+  <g>
+    <circle cx="370" cy="370" r="20" fill="#2A2A35"/>
+    <path d="M360,355 C340,330 310,315 290,320 C278,324 280,340 290,348 C310,360 345,365 360,362 Z" fill="#E8604A"/>
+    <path d="M360,385 C345,400 325,400 315,395 C340,395 355,390 360,382 Z" fill="#D45540"/>
+  </g>
+  <g>
+    <circle cx="830" cy="370" r="20" fill="#2A2A35"/>
+    <path d="M840,355 C860,330 890,315 910,320 C922,324 920,340 910,348 C890,360 855,365 840,362 Z" fill="#E8604A"/>
+    <path d="M840,385 C855,400 875,400 885,395 C860,395 845,390 840,382 Z" fill="#D45540"/>
+  </g>
+  <ellipse cx="530" cy="355" rx="55" ry="58" fill="#0A0A12"/>
+  <ellipse cx="670" cy="355" rx="55" ry="58" fill="#0A0A12"/>
+  <circle cx="530" cy="360" r="28" fill="#00CCCC" filter="url(#eyeGlow)" opacity="0.6"/>
+  <circle cx="670" cy="360" r="28" fill="#00CCCC" filter="url(#eyeGlow)" opacity="0.6"/>
+  <circle cx="530" cy="360" r="22" fill="#00FFFF"/>
+  <circle cx="670" cy="360" r="22" fill="#00FFFF"/>
+  <circle cx="530" cy="360" r="14" fill="#66FFFF"/>
+  <circle cx="670" cy="360" r="14" fill="#66FFFF"/>
+  <circle cx="520" cy="348" r="8" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="660" cy="348" r="8" fill="#FFFFFF" opacity="0.8"/>
+</svg>
