@@ -1,31 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <defs>
-    <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="0.8"/>
-    </filter>
-    <radialGradient id="bg" cx="50%" cy="35%" r="55%">
-      <stop offset="0%" stop-color="#FF7A5C"/>
-      <stop offset="100%" stop-color="#D44E3A"/>
-    </radialGradient>
-  </defs>
-  <g fill="#B83D2E">
-    <rect x="20" y="47" width="6" height="11" rx="3"/>
-    <rect x="29" y="48" width="6" height="11" rx="3"/>
-    <rect x="38" y="47" width="6" height="11" rx="3"/>
-  </g>
-  <circle cx="11" cy="32" r="3" fill="#2A2A35"/>
-  <path d="M10,28 C6,24 3,26 5,29 L10,31 Z" fill="#E8604A"/>
-  <path d="M10,36 C6,40 3,38 5,35 L10,33 Z" fill="#D45540"/>
-  <circle cx="53" cy="32" r="3" fill="#2A2A35"/>
-  <path d="M54,28 C58,24 61,26 59,29 L54,31 Z" fill="#E8604A"/>
-  <path d="M54,36 C58,40 61,38 59,35 L54,33 Z" fill="#D45540"/>
-  <ellipse cx="32" cy="31" rx="19" ry="20" fill="url(#bg)"/>
-  <ellipse cx="25" cy="33" rx="6" ry="6.5" fill="#0A0A12"/>
-  <ellipse cx="39" cy="33" rx="6" ry="6.5" fill="#0A0A12"/>
-  <circle cx="25" cy="33.5" r="3.5" fill="#00FFFF" filter="url(#g)"/>
-  <circle cx="39" cy="33.5" r="3.5" fill="#00FFFF" filter="url(#g)"/>
-  <circle cx="23" cy="31.5" r="1.2" fill="white" opacity="0.8"/>
-  <circle cx="37" cy="31.5" r="1.2" fill="white" opacity="0.8"/>
-  <path d="M28,39 Q32,42 36,39" stroke="#A83828" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="7" fill="#0E1428"/>
+  <ellipse cx="16" cy="16" rx="10" ry="11" fill="#E45A3B"/>
+  <path d="M10 24 Q8 27 7 29" stroke="#D04A2E" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M16 25 Q16 28 16 30" stroke="#D04A2E" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M22 24 Q24 27 25 29" stroke="#D04A2E" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <circle cx="16" cy="3" r="2" fill="#00E6D2"/>
+  <line x1="16" y1="5" x2="16" y2="6" stroke="#C44428" stroke-width="1.5"/>
+  <ellipse cx="12.5" cy="15" rx="3" ry="3.5" fill="#00E6D2"/>
+  <circle cx="11.5" cy="14" r="1" fill="rgba(255,255,255,0.4)"/>
+  <ellipse cx="19.5" cy="15" rx="3" ry="3.5" fill="#00E6D2"/>
+  <circle cx="18.5" cy="14" r="1" fill="rgba(255,255,255,0.4)"/>
 </svg>
