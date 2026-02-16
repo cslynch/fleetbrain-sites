@@ -658,21 +658,37 @@ section { position: relative; z-index: 1; }
 
     <div class="stan-intro r rd1">
       <div class="stan-intro-icon">
-        <svg viewBox="0 0 512 512" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 200 240" width="120" height="144" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <filter id="sg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <radialGradient id="sbg" cx="50%" cy="35%" r="55%"><stop offset="0%" stop-color="#FF7A5C"/><stop offset="50%" stop-color="#E8604A"/><stop offset="100%" stop-color="#C44835"/></radialGradient>
+            <radialGradient id="sb" cx="50%" cy="38%" r="52%"><stop offset="0%" stop-color="#EF7B5B"/><stop offset="65%" stop-color="#E45A3B"/><stop offset="100%" stop-color="#C44428"/></radialGradient>
+            <radialGradient id="se" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#7FFFFF"/><stop offset="50%" stop-color="#00E6D2"/><stop offset="100%" stop-color="#00B8A9"/></radialGradient>
+            <filter id="sg2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
-          <g fill="#B83D2E"><rect x="180" y="372" width="30" height="55" rx="15"/><rect x="222" y="377" width="30" height="57" rx="15"/><rect x="260" y="377" width="30" height="57" rx="15"/><rect x="302" y="372" width="30" height="55" rx="15"/></g>
-          <g><circle cx="115" cy="280" r="16" fill="#2A2A35"/><path d="M110,270 C100,250 80,230 60,225 C50,222 45,232 50,242 C58,258 85,272 110,275 Z" fill="#E8604A" stroke="#C44835" stroke-width="1"/><path d="M110,290 C100,310 80,325 60,332 C50,336 45,326 50,316 C58,300 85,288 110,285 Z" fill="#D45540" stroke="#B83D2E" stroke-width="1"/></g>
-          <g><circle cx="397" cy="280" r="16" fill="#2A2A35"/><path d="M402,270 C412,250 432,230 452,225 C462,222 467,232 462,242 C454,258 427,272 402,275 Z" fill="#E8604A" stroke="#C44835" stroke-width="1"/><path d="M402,290 C412,310 432,325 452,332 C462,336 467,326 462,316 C454,300 427,288 402,285 Z" fill="#D45540" stroke="#B83D2E" stroke-width="1"/></g>
-          <ellipse cx="256" cy="268" rx="142" ry="150" fill="url(#sbg)"/>
-          <ellipse cx="206" cy="285" rx="42" ry="45" fill="#0A0A12"/><ellipse cx="306" cy="285" rx="42" ry="45" fill="#0A0A12"/>
-          <circle cx="206" cy="290" r="22" fill="#00CCCC" filter="url(#sg)" opacity="0.6"/><circle cx="306" cy="290" r="22" fill="#00CCCC" filter="url(#sg)" opacity="0.6"/>
-          <circle cx="206" cy="290" r="17" fill="#00FFFF"/><circle cx="306" cy="290" r="17" fill="#00FFFF"/>
-          <circle cx="206" cy="290" r="10" fill="#66FFFF"/><circle cx="306" cy="290" r="10" fill="#66FFFF"/>
-          <circle cx="198" cy="281" r="6" fill="#FFF" opacity="0.8"/><circle cx="298" cy="281" r="6" fill="#FFF" opacity="0.8"/>
-          <path d="M234,338 Q256,355 278,338" stroke="#A83828" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M58 150 Q38 175 30 195 Q24 210 32 218 Q40 222 48 212 Q54 200 56 185 Q58 172 62 155" fill="#D04A2E"/>
+          <path d="M88 158 Q84 185 82 210 Q80 228 90 230 Q100 228 98 210 Q96 185 94 158" fill="#D04A2E"/>
+          <path d="M122 150 Q142 175 150 195 Q156 210 148 218 Q140 222 132 212 Q126 200 124 185 Q122 172 118 155" fill="#D04A2E"/>
+          <circle cx="35" cy="210" r="3.5" fill="#B83D22" opacity="0.5"/>
+          <circle cx="42" cy="198" r="3" fill="#B83D22" opacity="0.4"/>
+          <circle cx="88" cy="222" r="3.5" fill="#B83D22" opacity="0.5"/>
+          <circle cx="90" cy="205" r="3" fill="#B83D22" opacity="0.4"/>
+          <circle cx="145" cy="210" r="3.5" fill="#B83D22" opacity="0.5"/>
+          <circle cx="138" cy="198" r="3" fill="#B83D22" opacity="0.4"/>
+          <ellipse cx="90" cy="100" rx="68" ry="72" fill="url(#sb)"/>
+          <ellipse cx="78" cy="80" rx="35" ry="30" fill="rgba(255,255,255,0.1)"/>
+          <ellipse cx="90" cy="120" rx="38" ry="28" fill="rgba(255,255,255,0.04)"/>
+          <line x1="90" y1="28" x2="90" y2="12" stroke="#C44428" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="90" cy="8" r="5" fill="#00E6D2" filter="url(#sg2)"/>
+          <circle cx="90" cy="8" r="3" fill="#7FFFFF"/>
+          <path d="M52 72 Q90 65 128 72" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+          <ellipse cx="70" cy="96" rx="18" ry="20" fill="rgba(0,0,0,0.28)"/>
+          <ellipse cx="70" cy="96" rx="15" ry="17" fill="url(#se)" filter="url(#sg2)"/>
+          <ellipse cx="70" cy="96" rx="7" ry="9" fill="#005F56"/>
+          <ellipse cx="65" cy="91" rx="4" ry="4.5" fill="rgba(255,255,255,0.5)"/>
+          <ellipse cx="110" cy="96" rx="18" ry="20" fill="rgba(0,0,0,0.28)"/>
+          <ellipse cx="110" cy="96" rx="15" ry="17" fill="url(#se)" filter="url(#sg2)"/>
+          <ellipse cx="110" cy="96" rx="7" ry="9" fill="#005F56"/>
+          <ellipse cx="105" cy="91" rx="4" ry="4.5" fill="rgba(255,255,255,0.5)"/>
+          <path d="M80 120 Q90 128 100 120" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </div>
       <div class="stan-intro-text">
