@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>SupaBrain Tasks</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface-hover: #1a1a24;
+      --border: #1e1e2a;
+      --border-light: #2a2a3a;
+      --text: #e0e0e8;
+      --text-dim: #6b6b80;
+      --text-muted: #44445a;
+      --accent: #00d4aa;
+      --accent-glow: rgba(0, 212, 170, 0.15);
+      --danger: #ff4466;
+      --danger-glow: rgba(255, 68, 102, 0.15);
+      --warning: #ffaa33;
+      --warning-glow: rgba(255, 170, 51, 0.15);
+      --p0: #ff4466;
+      --p1: #ffaa33;
+      --p2: #00d4aa;
+      --p3: #6b6b80;
+      --blocked: #7b61ff;
+      --blocked-glow: rgba(123, 97, 255, 0.15);
+    }
+    html, body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    /* ---- Setup Overlay ---- */
+    .setup-overlay {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 1.5rem; padding: 2rem; z-index: 200;
+    }
+    .setup-overlay.hidden { display: none; }
+    .setup-overlay h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--accent);
+    }
+    .setup-overlay input {
+      width: 100%; max-width: 360px; padding: 0.75rem 1rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; outline: none;
+    }
+    .setup-overlay input:focus { border-color: var(--accent); }
+    .setup-overlay input::placeholder { color: var(--text-dim); }
+    .setup-overlay button {
+      padding: 0.6rem 2rem; background: var(--accent); color: var(--bg);
+      border: none; border-radius: 6px; font-family: 'Outfit', sans-serif;
+      font-weight: 600; font-size: 0.85rem; cursor: pointer;
+    }
+    .setup-overlay .note {
+      font-size: 0.7rem; color: var(--text-dim);
+      text-align: center; max-width: 300px; line-height: 1.5;
+    }
+
+    /* ---- Header ---- */
+    .app-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 1rem 1rem 0.75rem;
+    }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .header-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .header-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--text-dim);
+    }
+
+    /* ---- Filters ---- */
+    .filter-row {
+      display: flex; gap: 0.4rem; overflow-x: auto;
+      padding-bottom: 0.75rem; scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0; padding: 0.3rem 0.65rem;
+      border: 1px solid var(--border); border-radius: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.05em;
+      color: var(--text-dim); background: transparent;
+      cursor: pointer; transition: all 0.15s;
+      white-space: nowrap; user-select: none;
+    }
+    .filter-chip:active { transform: scale(0.95); }
+    .filter-chip.active {
+      color: var(--accent); border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .filter-chip.active-warning {
+      color: var(--warning); border-color: var(--warning);
+      background: var(--warning-glow);
+    }
+    .filter-chip.active-danger {
+      color: var(--danger); border-color: var(--danger);
+      background: var(--danger-glow);
+    }
+    .filter-chip.active-blocked {
+      color: var(--blocked); border-color: var(--blocked);
+      background: var(--blocked-glow);
+    }
+    .filter-chip.clear-btn {
+      color: var(--text-muted); border-color: transparent;
+    }
+    .filter-chip.clear-btn.has-filters {
+      color: var(--danger); border-color: transparent;
+    }
+
+    /* ---- Task List ---- */
+    .task-list { padding: 0.5rem 0; padding-bottom: 5rem; }
+
+    .project-group { margin-bottom: 0.25rem; }
+    .project-header {
+      padding: 0.75rem 1rem 0.35rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .project-header .proj-count {
+      font-weight: 400; color: var(--text-muted);
+    }
+
+    .task-card {
+      margin: 0.25rem 0.5rem; padding: 0.75rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .task-card:active { background: var(--surface-hover); }
+    .task-card.expanded { border-color: var(--border-light); }
+
+    .task-card-top {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+    }
+    .priority-badge {
+      flex-shrink: 0; width: 28px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; font-weight: 600; letter-spacing: 0.02em;
+      margin-top: 1px;
+    }
+    .priority-badge.p0 { background: rgba(255,68,102,0.15); color: var(--p0); }
+    .priority-badge.p1 { background: rgba(255,170,51,0.15); color: var(--p1); }
+    .priority-badge.p2 { background: rgba(0,212,170,0.12); color: var(--p2); }
+    .priority-badge.p3 { background: rgba(107,107,128,0.15); color: var(--p3); }
+
+    .task-content { flex: 1; min-width: 0; }
+    .task-title {
+      font-size: 0.85rem; font-weight: 400; line-height: 1.4;
+      color: var(--text); display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .task-card.expanded .task-title {
+      -webkit-line-clamp: unset; overflow: visible;
+    }
+    .task-meta {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-top: 0.35rem; flex-wrap: wrap;
+    }
+    .status-pill {
+      padding: 0.15rem 0.45rem; border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; font-weight: 600;
+      letter-spacing: 0.03em; text-transform: uppercase;
+    }
+    .status-pill.not_started { background: rgba(107,107,128,0.15); color: var(--text-dim); }
+    .status-pill.in_progress { background: var(--accent-glow); color: var(--accent); }
+    .status-pill.blocked { background: var(--blocked-glow); color: var(--blocked); }
+    .status-pill.done { background: rgba(0,212,170,0.08); color: var(--text-muted); }
+    .status-pill.closed { background: rgba(68,68,90,0.2); color: var(--text-muted); }
+
+    .meta-text {
+      font-size: 0.7rem; color: var(--text-muted);
+    }
+
+    /* ---- Expanded Detail ---- */
+    .task-detail {
+      display: none; margin-top: 0.75rem;
+      padding-top: 0.65rem; border-top: 1px solid var(--border);
+    }
+    .task-card.expanded .task-detail { display: block; }
+
+    .task-notes {
+      font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;
+      margin-bottom: 0.75rem; white-space: pre-wrap; word-break: break-word;
+    }
+    .task-notes:empty { display: none; }
+
+    .task-timestamps {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .task-actions {
+      display: flex; gap: 0.35rem; flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 0.35rem 0.6rem; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.03em; cursor: pointer;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-dim); transition: all 0.15s;
+    }
+    .action-btn:active { transform: scale(0.95); }
+    .action-btn.done-action {
+      border-color: rgba(0,212,170,0.3); color: var(--accent);
+    }
+    .action-btn.done-action:active {
+      background: var(--accent-glow);
+    }
+
+    /* ---- FAB ---- */
+    .fab {
+      position: fixed; bottom: 3.25rem; right: 1.25rem;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+      z-index: 50;
+    }
+    .fab:active { transform: scale(0.92); }
+    .fab svg { width: 24px; height: 24px; fill: var(--bg); }
+
+    /* ---- Bottom Sheet ---- */
+    .sheet-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 150; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .sheet {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--surface); border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0; z-index: 160;
+      transform: translateY(100%); transition: transform 0.3s ease;
+      padding: 1.25rem 1rem 2rem; max-height: 85dvh;
+      overflow-y: auto;
+    }
+    .sheet.open { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: var(--border-light); margin: 0 auto 1rem;
+    }
+    .sheet-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+
+    .field-group { margin-bottom: 0.85rem; }
+    .field-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 0.35rem;
+    }
+    .field-input, .field-textarea, .field-select {
+      width: 100%; padding: 0.6rem 0.75rem;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      font-family: 'Outfit', sans-serif; font-size: 0.85rem;
+      outline: none; transition: border-color 0.15s;
+    }
+    .field-input:focus, .field-textarea:focus, .field-select:focus {
+      border-color: var(--accent);
+    }
+    .field-input::placeholder, .field-textarea::placeholder {
+      color: var(--text-muted);
+    }
+    .field-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+    .field-select {
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%236b6b80'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.75rem center;
+      padding-right: 2rem;
+    }
+    .field-select option { background: var(--surface); color: var(--text); }
+
+    .field-row { display: flex; gap: 0.5rem; }
+    .field-row .field-group { flex: 1; }
+
+    .sheet-submit {
+      width: 100%; padding: 0.75rem; margin-top: 0.5rem;
+      background: var(--accent); color: var(--bg); border: none;
+      border-radius: 8px; font-family: 'Outfit', sans-serif;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .sheet-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .sheet-submit:active:not(:disabled) { opacity: 0.8; }
+
+    /* ---- Loading / Empty ---- */
+    .loading-state, .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 4rem 2rem; gap: 0.75rem;
+    }
+    .loading-spinner {
+      width: 24px; height: 24px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-text {
+      font-size: 0.85rem; color: var(--text-dim); text-align: center;
+    }
+
+    /* ---- Config Bar ---- */
+    .config-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 0.6rem 1rem; background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      z-index: 10;
+    }
+    .config-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
+    .config-dot.connected { background: var(--accent); }
+    .config-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.05em;
+    }
+
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-100px);
+      padding: 0.5rem 1rem; border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 600; z-index: 300;
+      transition: transform 0.3s ease; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--accent); color: var(--bg); }
+    .toast.error { background: var(--danger); color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- Setup -->
+  <div class="setup-overlay" id="setupOverlay">
+    <h2>SupaBrain Tasks</h2>
+    <p class="note">Enter your brain-api bearer token to connect. Stored locally in your browser only.</p>
+    <input type="password" id="tokenInput" placeholder="Bearer token" autocomplete="off">
+    <button id="saveTokenBtn">Connect</button>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Header -->
+  <div class="app-header">
+    <div class="header-top">
+      <span class="header-title">SupaBrain Tasks</span>
+      <span class="header-count" id="taskCount"></span>
+    </div>
+    <div class="filter-row" id="filterRow"></div>
+  </div>
+
+  <!-- Task List -->
+  <div class="task-list" id="taskList"></div>
+
+  <!-- FAB -->
+  <button class="fab" id="fabBtn" aria-label="New task">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+  </button>
+
+  <!-- Bottom Sheet -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheetTitle">New Task</div>
+    <div id="sheetBody"></div>
+  </div>
+
+  <!-- Config Bar -->
+  <div class="config-bar">
+    <div class="config-dot" id="configDot"></div>
+    <span class="config-label" id="configLabel">disconnected</span>
+  </div>
+
+<script>
+// ============================================================
+// State
+// ============================================================
+var state = {
+  tasks: [],
+  loading: false,
+  filters: { status: null, priority: null, project: null },
+  showDone: false,
+  expandedId: null,
+  allProjects: [],
+};
+
+var ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/brain-api';
+var $ = function(id) { return document.getElementById(id); };
+
+// ============================================================
+// API Layer — swap getHeaders() for Supabase Auth later
+// ============================================================
+var api = {
+  getHeaders: function() {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + (localStorage.getItem('supabrain_token') || ''),
+    };
+  },
+
+  fetchTasks: async function() {
+    var params = new URLSearchParams({ action: 'tasks', count: '100' });
+    var res = await fetch(ENDPOINT + '?' + params, { headers: api.getHeaders() });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    return data.tasks || [];
+  },
+
+  createTask: async function(payload) {
+    var res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: api.getHeaders(),
+      body: JSON.stringify(Object.assign({ action: 'task_create' }, payload)),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return (await res.json()).task;
+  },
+
+  updateTask: async function(task_id, updates) {
+    var res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: api.getHeaders(),
+      body: JSON.stringify(Object.assign({ action: 'task_update', task_id: task_id }, updates)),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return (await res.json()).task;
+  },
+};
+
+// ============================================================
+// Helpers
+// ============================================================
+function relativeTime(dateStr) {
+  var now = Date.now();
+  var then = new Date(dateStr).getTime();
+  var diff = now - then;
+  var mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  var hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  var days = Math.floor(hrs / 24);
+  if (days < 30) return days + 'd ago';
+  return new Date(dateStr).toLocaleDateString();
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg, type) {
+  type = type || 'success';
+  var el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+function statusLabel(s) {
+  var map = { not_started: 'Not Started', in_progress: 'In Progress', blocked: 'Blocked', done: 'Done', closed: 'Closed' };
+  return map[s] || s;
+}
+
+// ============================================================
+// Render
+// ============================================================
+function renderFilters() {
+  var filters = state.filters;
+  var html = '';
+
+  var statuses = [
+    { val: 'in_progress', label: 'In Progress', cls: 'active' },
+    { val: 'blocked', label: 'Blocked', cls: 'active-blocked' },
+    { val: 'not_started', label: 'Not Started', cls: 'active' },
+  ];
+  for (var i = 0; i < statuses.length; i++) {
+    var s = statuses[i];
+    var isActive = filters.status === s.val;
+    html += '<div class="filter-chip' + (isActive ? ' ' + s.cls : '') + '" data-filter="status" data-val="' + s.val + '">' + s.label + '</div>';
+  }
+
+  html += '<div class="filter-chip' + (state.showDone ? ' active' : '') + '" data-filter="showDone">+ Done</div>';
+
+  var priorities = [
+    { val: 'P0', cls: 'active-danger' },
+    { val: 'P1', cls: 'active-warning' },
+    { val: 'P2', cls: 'active' },
+  ];
+  for (var i = 0; i < priorities.length; i++) {
+    var p = priorities[i];
+    var isActive = filters.priority === p.val;
+    html += '<div class="filter-chip' + (isActive ? ' ' + p.cls : '') + '" data-filter="priority" data-val="' + p.val + '">' + p.val + '</div>';
+  }
+
+  for (var i = 0; i < state.allProjects.length; i++) {
+    var proj = state.allProjects[i];
+    var isActive = filters.project === proj;
+    html += '<div class="filter-chip' + (isActive ? ' active' : '') + '" data-filter="project" data-val="' + esc(proj) + '">' + esc(proj) + '</div>';
+  }
+
+  var hasFilters = filters.status || filters.priority || filters.project;
+  if (hasFilters) {
+    html += '<div class="filter-chip clear-btn has-filters" data-filter="clear">Clear</div>';
+  }
+
+  $('filterRow').innerHTML = html;
+}
+
+function renderTasks() {
+  var tasks = state.tasks;
+  var filters = state.filters;
+
+  var filtered = [];
+  for (var i = 0; i < tasks.length; i++) {
+    var t = tasks[i];
+    if (!state.showDone && (t.status === 'done' || t.status === 'closed')) continue;
+    if (filters.status && t.status !== filters.status) continue;
+    if (filters.priority && t.priority !== filters.priority) continue;
+    if (filters.project && t.project_name !== filters.project) continue;
+    filtered.push(t);
+  }
+
+  $('taskCount').textContent = filtered.length + ' task' + (filtered.length !== 1 ? 's' : '');
+
+  if (state.loading) {
+    $('taskList').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div></div>';
+    return;
+  }
+
+  if (filtered.length === 0) {
+    $('taskList').innerHTML = '<div class="empty-state"><span class="empty-text">No tasks match filters</span></div>';
+    return;
+  }
+
+  var groups = {};
+  var noProject = [];
+  for (var i = 0; i < filtered.length; i++) {
+    var t = filtered[i];
+    var proj = t.project_name || null;
+    if (proj) {
+      if (!groups[proj]) groups[proj] = [];
+      groups[proj].push(t);
+    } else {
+      noProject.push(t);
+    }
+  }
+
+  var sortedKeys = Object.keys(groups).sort();
+  var html = '';
+  for (var i = 0; i < sortedKeys.length; i++) {
+    html += renderGroup(sortedKeys[i], groups[sortedKeys[i]]);
+  }
+  if (noProject.length > 0) {
+    html += renderGroup('Unassigned', noProject);
+  }
+
+  $('taskList').innerHTML = html;
+}
+
+function renderGroup(name, tasks) {
+  var statusOrder = { in_progress: 0, blocked: 1, not_started: 2, done: 3, closed: 4 };
+  var prioOrder = { P0: 0, P1: 1, P2: 2, P3: 3 };
+  tasks.sort(function(a, b) {
+    var pd = (prioOrder[a.priority] || 9) - (prioOrder[b.priority] || 9);
+    if (pd !== 0) return pd;
+    return (statusOrder[a.status] || 9) - (statusOrder[b.status] || 9);
+  });
+
+  var html = '<div class="project-group">';
+  html += '<div class="project-header">' + esc(name) + ' <span class="proj-count">' + tasks.length + '</span></div>';
+
+  for (var i = 0; i < tasks.length; i++) {
+    var t = tasks[i];
+    var isExpanded = state.expandedId === t.id;
+    var prioClass = (t.priority || 'P2').toLowerCase();
+
+    html += '<div class="task-card' + (isExpanded ? ' expanded' : '') + '" data-id="' + t.id + '">';
+    html += '<div class="task-card-top">';
+    html += '<span class="priority-badge ' + prioClass + '">' + esc(t.priority || 'P2') + '</span>';
+    html += '<div class="task-content">';
+    html += '<div class="task-title">' + esc(t.task) + '</div>';
+    html += '<div class="task-meta">';
+    html += '<span class="status-pill ' + t.status + '">' + statusLabel(t.status) + '</span>';
+    if (t.owner) html += '<span class="meta-text">' + esc(t.owner) + '</span>';
+    html += '<span class="meta-text">' + relativeTime(t.updated_at) + '</span>';
+    html += '</div></div></div>';
+
+    html += '<div class="task-detail">';
+    if (t.notes) html += '<div class="task-notes">' + esc(t.notes) + '</div>';
+    html += '<div class="task-timestamps">Created ' + relativeTime(t.created_at) + '</div>';
+    html += '<div class="task-actions">';
+
+    if (t.status !== 'in_progress') html += '<button class="action-btn" data-action="status" data-val="in_progress" data-tid="' + t.id + '">Start</button>';
+    if (t.status !== 'blocked') html += '<button class="action-btn" data-action="status" data-val="blocked" data-tid="' + t.id + '">Block</button>';
+    if (t.status !== 'not_started' && t.status !== 'done') html += '<button class="action-btn" data-action="status" data-val="not_started" data-tid="' + t.id + '">Reset</button>';
+    if (t.status !== 'done') html += '<button class="action-btn done-action" data-action="status" data-val="done" data-tid="' + t.id + '">Done</button>';
+    html += '<button class="action-btn" data-action="edit" data-tid="' + t.id + '">Edit</button>';
+    html += '</div></div></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function render() {
+  renderFilters();
+  renderTasks();
+}
+
+// ============================================================
+// Data Loading
+// ============================================================
+async function loadTasks() {
+  state.loading = true;
+  render();
+  try {
+    var tasks = await api.fetchTasks();
+    state.tasks = tasks;
+    var projSet = {};
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].project_name) projSet[tasks[i].project_name] = true;
+    }
+    state.allProjects = Object.keys(projSet).sort();
+    state.loading = false;
+    render();
+  } catch (err) {
+    state.loading = false;
+    $('taskList').innerHTML = '<div class="empty-state"><span class="empty-text" style="color:var(--danger)">' + esc(err.message) + '</span></div>';
+    toast(err.message, 'error');
+  }
+}
+
+// ============================================================
+// Events
+// ============================================================
+$('filterRow').addEventListener('click', function(e) {
+  var chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  var filterType = chip.dataset.filter;
+  var val = chip.dataset.val;
+
+  if (filterType === 'clear') {
+    state.filters = { status: null, priority: null, project: null };
+  } else if (filterType === 'showDone') {
+    state.showDone = !state.showDone;
+  } else if (filterType === 'status') {
+    state.filters.status = state.filters.status === val ? null : val;
+  } else if (filterType === 'priority') {
+    state.filters.priority = state.filters.priority === val ? null : val;
+  } else if (filterType === 'project') {
+    state.filters.project = state.filters.project === val ? null : val;
+  }
+  render();
+});
+
+$('taskList').addEventListener('click', async function(e) {
+  var actionBtn = e.target.closest('.action-btn');
+  if (actionBtn) {
+    e.stopPropagation();
+    var action = actionBtn.dataset.action;
+    var tid = actionBtn.dataset.tid;
+
+    if (action === 'status') {
+      var newStatus = actionBtn.dataset.val;
+      try {
+        actionBtn.disabled = true;
+        actionBtn.textContent = '...';
+        await api.updateTask(tid, { status: newStatus });
+        var t = state.tasks.find(function(x) { return x.id === tid; });
+        if (t) {
+          t.status = newStatus;
+          t.updated_at = new Date().toISOString();
+        }
+        toast('\u2192 ' + statusLabel(newStatus));
+        render();
+      } catch (err) {
+        toast(err.message, 'error');
+        render();
+      }
+    } else if (action === 'edit') {
+      var task = state.tasks.find(function(x) { return x.id === tid; });
+      if (task) openEditSheet(task);
+    }
+    return;
+  }
+
+  var card = e.target.closest('.task-card');
+  if (!card) return;
+  var id = card.dataset.id;
+  state.expandedId = state.expandedId === id ? null : id;
+  render();
+});
+
+$('fabBtn').addEventListener('click', function() { openCreateSheet(); });
+$('sheetBackdrop').addEventListener('click', closeSheet);
+
+// ============================================================
+// Bottom Sheet: Create
+// ============================================================
+function openCreateSheet() {
+  $('sheetTitle').textContent = 'New Task';
+  var projOptions = state.allProjects.map(function(p) { return '<option value="' + esc(p) + '">'; }).join('');
+  $('sheetBody').innerHTML =
+    '<div class="field-group"><div class="field-label">Task</div><input class="field-input" id="fTask" placeholder="What needs to be done?"></div>' +
+    '<div class="field-row"><div class="field-group"><div class="field-label">Priority</div><select class="field-select" id="fPriority"><option value="P0">P0</option><option value="P1">P1</option><option value="P2" selected>P2</option><option value="P3">P3</option></select></div>' +
+    '<div class="field-group"><div class="field-label">Status</div><select class="field-select" id="fStatus"><option value="not_started" selected>Not Started</option><option value="in_progress">In Progress</option><option value="blocked">Blocked</option></select></div></div>' +
+    '<div class="field-row"><div class="field-group"><div class="field-label">Project</div><input class="field-input" id="fProject" placeholder="Project name" list="projList"><datalist id="projList">' + projOptions + '</datalist></div>' +
+    '<div class="field-group"><div class="field-label">Owner</div><input class="field-input" id="fOwner" placeholder="Owner" value="Casey"></div></div>' +
+    '<div class="field-group"><div class="field-label">Notes</div><textarea class="field-textarea" id="fNotes" placeholder="Optional notes"></textarea></div>' +
+    '<button class="sheet-submit" id="sheetSubmit">Create Task</button>';
+  openSheet();
+
+  $('sheetSubmit').addEventListener('click', async function() {
+    var task = $('fTask').value.trim();
+    if (!task) return;
+    $('sheetSubmit').disabled = true;
+    $('sheetSubmit').textContent = 'Creating...';
+    try {
+      var newTask = await api.createTask({
+        task: task,
+        priority: $('fPriority').value,
+        status: $('fStatus').value,
+        project_name: $('fProject').value.trim() || null,
+        owner: $('fOwner').value.trim() || null,
+        notes: $('fNotes').value.trim() || null,
+      });
+      state.tasks.unshift(newTask);
+      if (newTask.project_name && state.allProjects.indexOf(newTask.project_name) === -1) {
+        state.allProjects.push(newTask.project_name);
+        state.allProjects.sort();
+      }
+      closeSheet();
+      toast('Task created');
+      render();
+    } catch (err) {
+      toast(err.message, 'error');
+      $('sheetSubmit').disabled = false;
+      $('sheetSubmit').textContent = 'Create Task';
+    }
+  });
+}
+
+// ============================================================
+// Bottom Sheet: Edit
+// ============================================================
+function openEditSheet(task) {
+  $('sheetTitle').textContent = 'Edit Task';
+  var projOptions = state.allProjects.map(function(p) { return '<option value="' + esc(p) + '">'; }).join('');
+  var prioOptions = ['P0','P1','P2','P3'].map(function(p) { return '<option value="' + p + '"' + (task.priority===p?' selected':'') + '>' + p + '</option>'; }).join('');
+  var statusOptions = ['not_started','in_progress','blocked','done','closed'].map(function(s) { return '<option value="' + s + '"' + (task.status===s?' selected':'') + '>' + statusLabel(s) + '</option>'; }).join('');
+
+  $('sheetBody').innerHTML =
+    '<div class="field-group"><div class="field-label">Task</div><input class="field-input" id="fTask" value="' + esc(task.task) + '"></div>' +
+    '<div class="field-row"><div class="field-group"><div class="field-label">Priority</div><select class="field-select" id="fPriority">' + prioOptions + '</select></div>' +
+    '<div class="field-group"><div class="field-label">Status</div><select class="field-select" id="fStatus">' + statusOptions + '</select></div></div>' +
+    '<div class="field-row"><div class="field-group"><div class="field-label">Project</div><input class="field-input" id="fProject" value="' + esc(task.project_name || '') + '" list="projList"><datalist id="projList">' + projOptions + '</datalist></div>' +
+    '<div class="field-group"><div class="field-label">Owner</div><input class="field-input" id="fOwner" value="' + esc(task.owner || '') + '"></div></div>' +
+    '<div class="field-group"><div class="field-label">Notes</div><textarea class="field-textarea" id="fNotes">' + esc(task.notes || '') + '</textarea></div>' +
+    '<button class="sheet-submit" id="sheetSubmit">Save Changes</button>';
+  openSheet();
+
+  $('sheetSubmit').addEventListener('click', async function() {
+    $('sheetSubmit').disabled = true;
+    $('sheetSubmit').textContent = 'Saving...';
+    try {
+      var updates = {};
+      var nTask = $('fTask').value.trim();
+      var nPriority = $('fPriority').value;
+      var nStatus = $('fStatus').value;
+      var nProject = $('fProject').value.trim() || null;
+      var nOwner = $('fOwner').value.trim() || null;
+      var nNotes = $('fNotes').value.trim() || null;
+
+      if (nTask !== task.task) updates.task = nTask;
+      if (nPriority !== task.priority) updates.priority = nPriority;
+      if (nStatus !== task.status) updates.status = nStatus;
+      if (nProject !== task.project_name) updates.project_name = nProject;
+      if (nOwner !== task.owner) updates.owner = nOwner;
+      if (nNotes !== task.notes) updates.notes = nNotes;
+
+      if (Object.keys(updates).length === 0) { closeSheet(); return; }
+
+      var updated = await api.updateTask(task.id, updates);
+      var idx = state.tasks.findIndex(function(t) { return t.id === task.id; });
+      if (idx >= 0) Object.assign(state.tasks[idx], updated);
+      if (updated.project_name && state.allProjects.indexOf(updated.project_name) === -1) {
+        state.allProjects.push(updated.project_name);
+        state.allProjects.sort();
+      }
+      closeSheet();
+      toast('Task updated');
+      render();
+    } catch (err) {
+      toast(err.message, 'error');
+      $('sheetSubmit').disabled = false;
+      $('sheetSubmit').textContent = 'Save Changes';
+    }
+  });
+}
+
+function openSheet() {
+  $('sheetBackdrop').classList.add('open');
+  $('sheet').classList.add('open');
+}
+function closeSheet() {
+  $('sheetBackdrop').classList.remove('open');
+  $('sheet').classList.remove('open');
+}
+
+// ============================================================
+// Auth
+// ============================================================
+function getToken() { return localStorage.getItem('supabrain_token') || ''; }
+
+function updateConnectionUI() {
+  if (getToken()) {
+    $('configDot').classList.add('connected');
+    $('configLabel').textContent = 'connected';
+    $('setupOverlay').classList.add('hidden');
+  } else {
+    $('configDot').classList.remove('connected');
+    $('configLabel').textContent = 'disconnected';
+    $('setupOverlay').classList.remove('hidden');
+  }
+}
+
+$('saveTokenBtn').addEventListener('click', function() {
+  var t = $('tokenInput').value.trim();
+  if (!t) return;
+  localStorage.setItem('supabrain_token', t);
+  updateConnectionUI();
+  loadTasks();
+});
+
+var cpt;
+document.querySelector('.config-bar').addEventListener('pointerdown', function() {
+  cpt = setTimeout(function() {
+    if (confirm('Reset connection?')) {
+      localStorage.removeItem('supabrain_token');
+      updateConnectionUI();
+    }
+  }, 1500);
+});
+document.querySelector('.config-bar').addEventListener('pointerup', function() { clearTimeout(cpt); });
+document.querySelector('.config-bar').addEventListener('pointerleave', function() { clearTimeout(cpt); });
+
+// ============================================================
+// Init
+// ============================================================
+updateConnectionUI();
+if (getToken()) loadTasks();
+</script>
+</body>
+</html>
