@@ -82,8 +82,8 @@
       border-radius: 20px;
       transition: transform 0.25s ease, background 0.25s ease;
     }
-    .target-slider .slider-track.brain { background: var(--accent-glow); transform: translateX(0); }
-    .target-slider .slider-track.stan { background: var(--stan-glow); transform: translateX(100%); }
+    .target-slider .slider-track.stan { background: var(--stan-glow); transform: translateX(0); }
+    .target-slider .slider-track.brain { background: var(--accent-glow); transform: translateX(100%); }
     .target-option {
       flex: 1;
       padding: 0.45rem 0;
@@ -118,7 +118,6 @@
     .mic-btn:active { transform: scale(0.95); }
     .mic-btn svg { width: 40px; height: 40px; fill: var(--text-dim); transition: fill 0.3s; }
 
-    /* Stan idle */
     .stan-idle .mic-ring { border-color: rgba(255, 136, 68, 0.3); }
     .stan-idle .mic-btn svg { fill: var(--stan); }
 
@@ -139,10 +138,8 @@
 
     .success-capture .mic-ring { border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
     .success-capture .mic-btn svg { fill: var(--accent); }
-
     .success-recall .mic-ring { border-color: var(--ask); box-shadow: 0 0 30px var(--ask-glow); }
     .success-recall .mic-btn svg { fill: var(--ask); }
-
     .success-stan .mic-ring { border-color: var(--stan); box-shadow: 0 0 30px var(--stan-glow); }
     .success-stan .mic-btn svg { fill: var(--stan); }
 
@@ -191,6 +188,39 @@
     }
     .result-panel .result-label.recall-label { color: var(--ask); }
     .result-panel .result-label.stan-label { color: var(--stan); }
+
+    /* TTS toggle */
+    .tts-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .tts-toggle.active {
+      border-color: var(--stan);
+      background: var(--stan-glow);
+    }
+    .tts-toggle svg {
+      width: 14px; height: 14px;
+      fill: var(--text-dim);
+      transition: fill 0.2s;
+    }
+    .tts-toggle.active svg { fill: var(--stan); }
+    .tts-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      transition: color 0.2s;
+    }
+    .tts-toggle.active .tts-label { color: var(--stan); }
 
     .timer {
       font-family: 'JetBrains Mono', monospace;
@@ -252,17 +282,17 @@
 
   <div class="container">
     <div class="header">
-      <h1 id="title" class="brain-title">SupaBrain</h1>
-      <p id="subtitle">Speak a thought or ask a question</p>
+      <h1 id="title" class="stan-title">Stan</h1>
+      <p id="subtitle">Talk to Stan</p>
     </div>
 
     <div class="target-slider" id="targetSlider">
-      <div class="slider-track brain" id="sliderTrack"></div>
-      <div class="target-option active-brain" id="optBrain">Brain</div>
-      <div class="target-option" id="optStan">Stan</div>
+      <div class="slider-track stan" id="sliderTrack"></div>
+      <div class="target-option active-stan" id="optStan">Stan</div>
+      <div class="target-option" id="optBrain">Brain</div>
     </div>
 
-    <div class="mic-container" id="micContainer">
+    <div class="mic-container stan-idle" id="micContainer">
       <div class="mic-ring"></div>
       <button class="mic-btn" id="micBtn" aria-label="Record">
         <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
@@ -277,6 +307,11 @@
       <div class="result-label" id="resultLabel"></div>
       <div id="resultText"></div>
     </div>
+
+    <div class="tts-toggle" id="ttsToggle">
+      <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      <span class="tts-label">Voice</span>
+    </div>
   </div>
   <div class="config-bar">
     <div class="config-dot" id="configDot"></div>
@@ -290,7 +325,9 @@
     let isProcessing = false;
     let timerInterval = null;
     let seconds = 0;
-    let target = 'brain'; // 'brain' or 'stan'
+    let target = 'stan';
+    let ttsEnabled = false;
+    let currentAudio = null;
 
     const BRAIN_ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice';
     const STAN_ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice-stan';
@@ -302,8 +339,8 @@
     function setTarget(t) {
       target = t;
       $('sliderTrack').className = `slider-track ${t}`;
-      $('optBrain').className = t === 'brain' ? 'target-option active-brain' : 'target-option';
       $('optStan').className = t === 'stan' ? 'target-option active-stan' : 'target-option';
+      $('optBrain').className = t === 'brain' ? 'target-option active-brain' : 'target-option';
       $('title').className = t === 'brain' ? 'brain-title' : 'stan-title';
       $('title').textContent = t === 'brain' ? 'SupaBrain' : 'Stan';
       $('subtitle').textContent = t === 'brain' ? 'Speak a thought or ask a question' : 'Talk to Stan';
@@ -314,19 +351,26 @@
         $('statusText').className = 'status-text';
       }
       $('resultPanel').classList.remove('visible');
+      if (currentAudio) { currentAudio.pause(); currentAudio = null; }
       localStorage.setItem('supabrain_target', t);
     }
 
-    $('optBrain').addEventListener('click', () => setTarget('brain'));
-    $('optStan').addEventListener('click', () => setTarget('stan'));
+    function setTts(enabled) {
+      ttsEnabled = enabled;
+      $('ttsToggle').className = enabled ? 'tts-toggle active' : 'tts-toggle';
+      localStorage.setItem('supabrain_tts', enabled ? '1' : '0');
+    }
 
-    // Swipe support on slider
+    $('optStan').addEventListener('click', () => setTarget('stan'));
+    $('optBrain').addEventListener('click', () => setTarget('brain'));
+    $('ttsToggle').addEventListener('click', () => setTts(!ttsEnabled));
+
     let touchStartX = 0;
     $('targetSlider').addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
     $('targetSlider').addEventListener('touchend', e => {
       const dx = e.changedTouches[0].clientX - touchStartX;
-      if (dx > 30) setTarget('stan');
-      else if (dx < -30) setTarget('brain');
+      if (dx > 30) setTarget('brain');
+      else if (dx < -30) setTarget('stan');
     });
 
     function updateConnectionUI() {
@@ -370,8 +414,25 @@
     }
     function stopTimer() { clearInterval(timerInterval); }
 
+    function playAudioBase64(base64mp3) {
+      try {
+        const bytes = atob(base64mp3);
+        const arr = new Uint8Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+        const blob = new Blob([arr], { type: 'audio/mp3' });
+        const url = URL.createObjectURL(blob);
+        if (currentAudio) currentAudio.pause();
+        currentAudio = new Audio(url);
+        currentAudio.play().catch(e => console.error('Audio play failed:', e));
+        currentAudio.onended = () => { URL.revokeObjectURL(url); currentAudio = null; };
+      } catch (e) {
+        console.error('TTS playback error:', e);
+      }
+    }
+
     async function startRecording() {
       try {
+        if (currentAudio) { currentAudio.pause(); currentAudio = null; }
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
           ? 'audio/webm;codecs=opus'
@@ -418,7 +479,8 @@
       fd.append('audio', new File([blob], `recording.${ext}`, { type: mimeType }));
       fd.append('source', 'voice');
 
-      const endpoint = target === 'stan' ? STAN_ENDPOINT : BRAIN_ENDPOINT;
+      let endpoint = target === 'stan' ? STAN_ENDPOINT : BRAIN_ENDPOINT;
+      if (target === 'stan' && ttsEnabled) endpoint += '?tts=1';
 
       try {
         const res = await fetch(endpoint, {
@@ -432,7 +494,6 @@
         isProcessing = false;
 
         if (target === 'stan') {
-          // Stan response
           $('micContainer').className = 'mic-container success-stan';
           $('statusLabel').textContent = 'Stan';
           $('statusText').textContent = '';
@@ -440,8 +501,8 @@
           $('resultLabel').className = 'result-label stan-label';
           $('resultText').textContent = data.response;
           $('resultPanel').className = 'result-panel stan-result visible';
+          if (data.audio && ttsEnabled) playAudioBase64(data.audio);
         } else if (data.action === 'recalled') {
-          // Brain recall
           $('micContainer').className = 'mic-container success-recall';
           $('statusLabel').textContent = `${data.results_count || 0} memories found`;
           $('statusText').textContent = '';
@@ -450,7 +511,6 @@
           $('resultText').textContent = data.summary;
           $('resultPanel').className = 'result-panel recall visible';
         } else {
-          // Brain capture
           $('micContainer').className = 'mic-container success-capture';
           $('statusLabel').textContent = 'Captured';
           $('statusText').textContent = data.metadata?.topics?.join(', ') || 'Thought stored';
@@ -480,9 +540,10 @@
       isRecording ? stopRecording() : startRecording();
     });
 
-    // Restore saved target
+    // Restore saved state
     const savedTarget = localStorage.getItem('supabrain_target');
-    if (savedTarget === 'stan') setTarget('stan');
+    if (savedTarget === 'brain') setTarget('brain');
+    if (localStorage.getItem('supabrain_tts') === '1') setTts(true);
 
     updateConnectionUI();
   </script>
