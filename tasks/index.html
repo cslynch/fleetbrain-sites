@@ -82,6 +82,7 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 0.75rem;
     }
+    .header-left { display: flex; align-items: center; gap: 0.75rem; }
     .header-title {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem; font-weight: 600;
@@ -91,6 +92,24 @@
     .header-count {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.65rem; color: var(--text-dim);
+    }
+    .view-toggle {
+      display: none;
+      align-items: center; gap: 2px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 2px; cursor: pointer;
+    }
+    .view-toggle-btn {
+      padding: 0.3rem 0.45rem; border-radius: 4px;
+      border: none; background: transparent; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .view-toggle-btn svg { width: 16px; height: 16px; fill: var(--text-muted); transition: fill 0.15s; }
+    .view-toggle-btn.active { background: var(--border); }
+    .view-toggle-btn.active svg { fill: var(--accent); }
+    @media (min-width: 768px) {
+      .view-toggle { display: flex; }
     }
 
     /* ---- Filters ---- */
@@ -126,15 +145,12 @@
       color: var(--blocked); border-color: var(--blocked);
       background: var(--blocked-glow);
     }
-    .filter-chip.clear-btn {
-      color: var(--text-muted); border-color: transparent;
-    }
-    .filter-chip.clear-btn.has-filters {
-      color: var(--danger); border-color: transparent;
-    }
+    .filter-chip.clear-btn { color: var(--text-muted); border-color: transparent; }
+    .filter-chip.clear-btn.has-filters { color: var(--danger); border-color: transparent; }
 
-    /* ---- Task List ---- */
+    /* ---- Task List View ---- */
     .task-list { padding: 0.5rem 0; padding-bottom: 5rem; }
+    .task-list.hidden { display: none; }
 
     .project-group { margin-bottom: 0.25rem; }
     .project-header {
@@ -145,9 +161,7 @@
       color: var(--text-dim);
       display: flex; align-items: center; gap: 0.5rem;
     }
-    .project-header .proj-count {
-      font-weight: 400; color: var(--text-muted);
-    }
+    .project-header .proj-count { font-weight: 400; color: var(--text-muted); }
 
     .task-card {
       margin: 0.25rem 0.5rem; padding: 0.75rem;
@@ -158,15 +172,12 @@
     .task-card:active { background: var(--surface-hover); }
     .task-card.expanded { border-color: var(--border-light); }
 
-    .task-card-top {
-      display: flex; align-items: flex-start; gap: 0.5rem;
-    }
+    .task-card-top { display: flex; align-items: flex-start; gap: 0.5rem; }
     .priority-badge {
       flex-shrink: 0; width: 28px; height: 20px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 4px; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem; font-weight: 600; letter-spacing: 0.02em;
-      margin-top: 1px;
+      font-size: 0.55rem; font-weight: 600; letter-spacing: 0.02em; margin-top: 1px;
     }
     .priority-badge.p0 { background: rgba(255,68,102,0.15); color: var(--p0); }
     .priority-badge.p1 { background: rgba(255,170,51,0.15); color: var(--p1); }
@@ -177,12 +188,9 @@
     .task-title {
       font-size: 0.85rem; font-weight: 400; line-height: 1.4;
       color: var(--text); display: -webkit-box;
-      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      overflow: hidden;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .task-card.expanded .task-title {
-      -webkit-line-clamp: unset; overflow: visible;
-    }
+    .task-card.expanded .task-title { -webkit-line-clamp: unset; overflow: visible; }
     .task-meta {
       display: flex; align-items: center; gap: 0.5rem;
       margin-top: 0.35rem; flex-wrap: wrap;
@@ -198,47 +206,123 @@
     .status-pill.blocked { background: var(--blocked-glow); color: var(--blocked); }
     .status-pill.done { background: rgba(0,212,170,0.08); color: var(--text-muted); }
     .status-pill.closed { background: rgba(68,68,90,0.2); color: var(--text-muted); }
+    .meta-text { font-size: 0.7rem; color: var(--text-muted); }
 
-    .meta-text {
-      font-size: 0.7rem; color: var(--text-muted);
-    }
-
-    /* ---- Expanded Detail ---- */
     .task-detail {
       display: none; margin-top: 0.75rem;
       padding-top: 0.65rem; border-top: 1px solid var(--border);
     }
     .task-card.expanded .task-detail { display: block; }
-
     .task-notes {
       font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;
       margin-bottom: 0.75rem; white-space: pre-wrap; word-break: break-word;
     }
     .task-notes:empty { display: none; }
-
     .task-timestamps {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem; color: var(--text-muted);
-      margin-bottom: 0.75rem;
+      font-size: 0.6rem; color: var(--text-muted); margin-bottom: 0.75rem;
     }
-
-    .task-actions {
-      display: flex; gap: 0.35rem; flex-wrap: wrap;
-    }
+    .task-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
     .action-btn {
       padding: 0.35rem 0.6rem; border-radius: 6px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6rem; font-weight: 600;
-      letter-spacing: 0.03em; cursor: pointer;
-      border: 1px solid var(--border); background: transparent;
-      color: var(--text-dim); transition: all 0.15s;
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.03em;
+      cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--text-dim); transition: all 0.15s;
     }
     .action-btn:active { transform: scale(0.95); }
-    .action-btn.done-action {
-      border-color: rgba(0,212,170,0.3); color: var(--accent);
+    .action-btn.done-action { border-color: rgba(0,212,170,0.3); color: var(--accent); }
+    .action-btn.done-action:active { background: var(--accent-glow); }
+
+    /* ============================================================
+       KANBAN VIEW
+       ============================================================ */
+    .kanban-board {
+      display: none;
+      padding: 0.75rem 0.5rem 5rem;
+      overflow-x: auto; overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
-    .action-btn.done-action:active {
-      background: var(--accent-glow);
+    .kanban-board.visible {
+      display: flex;
+      gap: 0.5rem;
+      min-height: calc(100dvh - 130px);
+    }
+
+    .kanban-col {
+      flex: 0 0 280px;
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      min-height: 200px;
+      max-height: calc(100dvh - 150px);
+    }
+    .kanban-col-header {
+      padding: 0.65rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .kanban-col-header .col-count {
+      font-weight: 400; color: var(--text-muted);
+      min-width: 18px; text-align: center;
+      padding: 0.1rem 0.35rem; border-radius: 8px;
+      font-size: 0.55rem;
+    }
+    .kanban-col[data-status="not_started"] .kanban-col-header { color: var(--text-dim); }
+    .kanban-col[data-status="in_progress"] .kanban-col-header { color: var(--accent); }
+    .kanban-col[data-status="blocked"] .kanban-col-header { color: var(--blocked); }
+    .kanban-col[data-status="done"] .kanban-col-header { color: var(--text-muted); }
+
+    .kanban-col-body {
+      flex: 1; overflow-y: auto; padding: 0.4rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .kanban-col-body.drag-over {
+      background: rgba(0, 212, 170, 0.04);
+      outline: 2px dashed var(--accent);
+      outline-offset: -4px;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .kanban-card {
+      padding: 0.6rem; margin-bottom: 0.35rem;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s, opacity 0.15s;
+    }
+    .kanban-card:hover { border-color: var(--border-light); }
+    .kanban-card:active { transform: scale(0.98); }
+    .kanban-card.dragging { opacity: 0.4; }
+
+    .kanban-card-top { display: flex; align-items: flex-start; gap: 0.4rem; }
+    .kanban-card .priority-badge { width: 24px; height: 18px; font-size: 0.5rem; }
+    .kanban-card-title {
+      font-size: 0.8rem; font-weight: 400; line-height: 1.35;
+      color: var(--text); flex: 1; min-width: 0;
+      display: -webkit-box; -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .kanban-card-meta {
+      display: flex; align-items: center; gap: 0.4rem;
+      margin-top: 0.35rem; flex-wrap: wrap;
+    }
+    .kanban-card-tag {
+      padding: 0.1rem 0.35rem; border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem; letter-spacing: 0.03em;
+      background: var(--surface); color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .kanban-card-owner {
+      font-size: 0.65rem; color: var(--text-muted);
     }
 
     /* ---- FAB ---- */
@@ -248,8 +332,7 @@
       background: var(--accent); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
-      transition: transform 0.15s, box-shadow 0.15s;
-      z-index: 50;
+      transition: transform 0.15s; z-index: 50;
     }
     .fab:active { transform: scale(0.92); }
     .fab svg { width: 24px; height: 24px; fill: var(--bg); }
@@ -257,21 +340,17 @@
     /* ---- Bottom Sheet ---- */
     .sheet-backdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-      z-index: 150; opacity: 0; pointer-events: none;
-      transition: opacity 0.2s;
+      z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.2s;
     }
     .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
-
     .sheet {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: var(--surface); border-top: 1px solid var(--border);
       border-radius: 16px 16px 0 0; z-index: 160;
       transform: translateY(100%); transition: transform 0.3s ease;
-      padding: 1.25rem 1rem 2rem; max-height: 85dvh;
-      overflow-y: auto;
+      padding: 1.25rem 1rem 2rem; max-height: 85dvh; overflow-y: auto;
     }
     .sheet.open { transform: translateY(0); }
-
     .sheet-handle {
       width: 36px; height: 4px; border-radius: 2px;
       background: var(--border-light); margin: 0 auto 1rem;
@@ -282,13 +361,11 @@
       letter-spacing: 0.1em; text-transform: uppercase;
       color: var(--accent); margin-bottom: 1rem;
     }
-
     .field-group { margin-bottom: 0.85rem; }
     .field-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.6rem; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--text-dim);
-      margin-bottom: 0.35rem;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.35rem;
     }
     .field-input, .field-textarea, .field-select {
       width: 100%; padding: 0.6rem 0.75rem;
@@ -297,12 +374,8 @@
       font-family: 'Outfit', sans-serif; font-size: 0.85rem;
       outline: none; transition: border-color 0.15s;
     }
-    .field-input:focus, .field-textarea:focus, .field-select:focus {
-      border-color: var(--accent);
-    }
-    .field-input::placeholder, .field-textarea::placeholder {
-      color: var(--text-muted);
-    }
+    .field-input:focus, .field-textarea:focus, .field-select:focus { border-color: var(--accent); }
+    .field-input::placeholder, .field-textarea::placeholder { color: var(--text-muted); }
     .field-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
     .field-select {
       appearance: none; cursor: pointer;
@@ -311,16 +384,13 @@
       padding-right: 2rem;
     }
     .field-select option { background: var(--surface); color: var(--text); }
-
     .field-row { display: flex; gap: 0.5rem; }
     .field-row .field-group { flex: 1; }
-
     .sheet-submit {
       width: 100%; padding: 0.75rem; margin-top: 0.5rem;
       background: var(--accent); color: var(--bg); border: none;
       border-radius: 8px; font-family: 'Outfit', sans-serif;
-      font-weight: 600; font-size: 0.9rem; cursor: pointer;
-      transition: opacity 0.15s;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: opacity 0.15s;
     }
     .sheet-submit:disabled { opacity: 0.4; cursor: not-allowed; }
     .sheet-submit:active:not(:disabled) { opacity: 0.8; }
@@ -336,9 +406,7 @@
       animation: spin 0.6s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .empty-text {
-      font-size: 0.85rem; color: var(--text-dim); text-align: center;
-    }
+    .empty-text { font-size: 0.85rem; color: var(--text-dim); text-align: center; }
 
     /* ---- Config Bar ---- */
     .config-bar {
@@ -370,7 +438,6 @@
 </head>
 <body>
 
-  <!-- Setup -->
   <div class="setup-overlay" id="setupOverlay">
     <h2>SupaBrain Tasks</h2>
     <p class="note">Enter your brain-api bearer token to connect. Stored locally in your browser only.</p>
@@ -378,27 +445,33 @@
     <button id="saveTokenBtn">Connect</button>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <!-- Header -->
   <div class="app-header">
     <div class="header-top">
-      <span class="header-title">SupaBrain Tasks</span>
-      <span class="header-count" id="taskCount"></span>
+      <div class="header-left">
+        <span class="header-title">SupaBrain Tasks</span>
+        <span class="header-count" id="taskCount"></span>
+      </div>
+      <div class="view-toggle" id="viewToggle">
+        <button class="view-toggle-btn active" id="viewList" aria-label="List view">
+          <svg viewBox="0 0 24 24"><path d="M3 14h4v-4H3v4zm0 5h4v-4H3v4zM3 9h4V5H3v4zm5 5h13v-4H8v4zm0 5h13v-4H8v4zM8 5v4h13V5H8z"/></svg>
+        </button>
+        <button class="view-toggle-btn" id="viewBoard" aria-label="Board view">
+          <svg viewBox="0 0 24 24"><path d="M4 5v13h17V5H4zm2 11V7h3v9H6zm5 0V7h3v9h-3zm5 0V7h3v9h-3z"/></svg>
+        </button>
+      </div>
     </div>
     <div class="filter-row" id="filterRow"></div>
   </div>
 
-  <!-- Task List -->
   <div class="task-list" id="taskList"></div>
+  <div class="kanban-board" id="kanbanBoard"></div>
 
-  <!-- FAB -->
   <button class="fab" id="fabBtn" aria-label="New task">
     <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
   </button>
 
-  <!-- Bottom Sheet -->
   <div class="sheet-backdrop" id="sheetBackdrop"></div>
   <div class="sheet" id="sheet">
     <div class="sheet-handle"></div>
@@ -406,16 +479,12 @@
     <div id="sheetBody"></div>
   </div>
 
-  <!-- Config Bar -->
   <div class="config-bar">
     <div class="config-dot" id="configDot"></div>
     <span class="config-label" id="configLabel">disconnected</span>
   </div>
 
 <script>
-// ============================================================
-// State
-// ============================================================
 var state = {
   tasks: [],
   loading: false,
@@ -423,14 +492,19 @@ var state = {
   showDone: false,
   expandedId: null,
   allProjects: [],
+  viewMode: 'list',
 };
 
 var ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/brain-api';
 var $ = function(id) { return document.getElementById(id); };
 
-// ============================================================
-// API Layer — swap getHeaders() for Supabase Auth later
-// ============================================================
+var KANBAN_COLS = [
+  { status: 'not_started', label: 'Not Started' },
+  { status: 'in_progress', label: 'In Progress' },
+  { status: 'blocked', label: 'Blocked' },
+  { status: 'done', label: 'Done' },
+];
+
 var api = {
   getHeaders: function() {
     return {
@@ -438,7 +512,6 @@ var api = {
       'Authorization': 'Bearer ' + (localStorage.getItem('supabrain_token') || ''),
     };
   },
-
   fetchTasks: async function() {
     var params = new URLSearchParams({ action: 'tasks', count: '100' });
     var res = await fetch(ENDPOINT + '?' + params, { headers: api.getHeaders() });
@@ -446,21 +519,17 @@ var api = {
     var data = await res.json();
     return data.tasks || [];
   },
-
   createTask: async function(payload) {
     var res = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: api.getHeaders(),
+      method: 'POST', headers: api.getHeaders(),
       body: JSON.stringify(Object.assign({ action: 'task_create' }, payload)),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return (await res.json()).task;
   },
-
   updateTask: async function(task_id, updates) {
     var res = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: api.getHeaders(),
+      method: 'POST', headers: api.getHeaders(),
       body: JSON.stringify(Object.assign({ action: 'task_update', task_id: task_id }, updates)),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -468,13 +537,8 @@ var api = {
   },
 };
 
-// ============================================================
-// Helpers
-// ============================================================
 function relativeTime(dateStr) {
-  var now = Date.now();
-  var then = new Date(dateStr).getTime();
-  var diff = now - then;
+  var diff = Date.now() - new Date(dateStr).getTime();
   var mins = Math.floor(diff / 60000);
   if (mins < 1) return 'just now';
   if (mins < 60) return mins + 'm ago';
@@ -484,12 +548,10 @@ function relativeTime(dateStr) {
   if (days < 30) return days + 'd ago';
   return new Date(dateStr).toLocaleDateString();
 }
-
 function esc(s) {
   if (!s) return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function toast(msg, type) {
   type = type || 'success';
   var el = $('toast');
@@ -497,32 +559,46 @@ function toast(msg, type) {
   el.className = 'toast ' + type + ' show';
   setTimeout(function() { el.classList.remove('show'); }, 2000);
 }
-
 function statusLabel(s) {
-  var map = { not_started: 'Not Started', in_progress: 'In Progress', blocked: 'Blocked', done: 'Done', closed: 'Closed' };
-  return map[s] || s;
+  return { not_started: 'Not Started', in_progress: 'In Progress', blocked: 'Blocked', done: 'Done', closed: 'Closed' }[s] || s;
+}
+function sortTasks(tasks) {
+  var prioOrder = { P0: 0, P1: 1, P2: 2, P3: 3 };
+  tasks.sort(function(a, b) {
+    return (prioOrder[a.priority] || 9) - (prioOrder[b.priority] || 9);
+  });
+  return tasks;
 }
 
-// ============================================================
-// Render
-// ============================================================
+function isDesktop() { return window.innerWidth >= 768; }
+function setViewMode(mode) {
+  state.viewMode = mode;
+  localStorage.setItem('supabrain_view', mode);
+  $('viewList').className = 'view-toggle-btn' + (mode === 'list' ? ' active' : '');
+  $('viewBoard').className = 'view-toggle-btn' + (mode === 'board' ? ' active' : '');
+  render();
+}
+function effectiveView() {
+  if (!isDesktop()) return 'list';
+  return state.viewMode;
+}
+
 function renderFilters() {
   var filters = state.filters;
   var html = '';
-
-  var statuses = [
-    { val: 'in_progress', label: 'In Progress', cls: 'active' },
-    { val: 'blocked', label: 'Blocked', cls: 'active-blocked' },
-    { val: 'not_started', label: 'Not Started', cls: 'active' },
-  ];
-  for (var i = 0; i < statuses.length; i++) {
-    var s = statuses[i];
-    var isActive = filters.status === s.val;
-    html += '<div class="filter-chip' + (isActive ? ' ' + s.cls : '') + '" data-filter="status" data-val="' + s.val + '">' + s.label + '</div>';
+  var view = effectiveView();
+  if (view !== 'board') {
+    var statuses = [
+      { val: 'in_progress', label: 'In Progress', cls: 'active' },
+      { val: 'blocked', label: 'Blocked', cls: 'active-blocked' },
+      { val: 'not_started', label: 'Not Started', cls: 'active' },
+    ];
+    for (var i = 0; i < statuses.length; i++) {
+      var s = statuses[i];
+      html += '<div class="filter-chip' + (filters.status === s.val ? ' ' + s.cls : '') + '" data-filter="status" data-val="' + s.val + '">' + s.label + '</div>';
+    }
+    html += '<div class="filter-chip' + (state.showDone ? ' active' : '') + '" data-filter="showDone">+ Done</div>';
   }
-
-  html += '<div class="filter-chip' + (state.showDone ? ' active' : '') + '" data-filter="showDone">+ Done</div>';
-
   var priorities = [
     { val: 'P0', cls: 'active-danger' },
     { val: 'P1', cls: 'active-warning' },
@@ -530,28 +606,20 @@ function renderFilters() {
   ];
   for (var i = 0; i < priorities.length; i++) {
     var p = priorities[i];
-    var isActive = filters.priority === p.val;
-    html += '<div class="filter-chip' + (isActive ? ' ' + p.cls : '') + '" data-filter="priority" data-val="' + p.val + '">' + p.val + '</div>';
+    html += '<div class="filter-chip' + (filters.priority === p.val ? ' ' + p.cls : '') + '" data-filter="priority" data-val="' + p.val + '">' + p.val + '</div>';
   }
-
   for (var i = 0; i < state.allProjects.length; i++) {
     var proj = state.allProjects[i];
-    var isActive = filters.project === proj;
-    html += '<div class="filter-chip' + (isActive ? ' active' : '') + '" data-filter="project" data-val="' + esc(proj) + '">' + esc(proj) + '</div>';
+    html += '<div class="filter-chip' + (filters.project === proj ? ' active' : '') + '" data-filter="project" data-val="' + esc(proj) + '">' + esc(proj) + '</div>';
   }
-
   var hasFilters = filters.status || filters.priority || filters.project;
-  if (hasFilters) {
-    html += '<div class="filter-chip clear-btn has-filters" data-filter="clear">Clear</div>';
-  }
-
+  if (hasFilters) html += '<div class="filter-chip clear-btn has-filters" data-filter="clear">Clear</div>';
   $('filterRow').innerHTML = html;
 }
 
-function renderTasks() {
+function renderListView() {
   var tasks = state.tasks;
   var filters = state.filters;
-
   var filtered = [];
   for (var i = 0; i < tasks.length; i++) {
     var t = tasks[i];
@@ -561,45 +629,31 @@ function renderTasks() {
     if (filters.project && t.project_name !== filters.project) continue;
     filtered.push(t);
   }
-
   $('taskCount').textContent = filtered.length + ' task' + (filtered.length !== 1 ? 's' : '');
-
   if (state.loading) {
     $('taskList').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div></div>';
     return;
   }
-
   if (filtered.length === 0) {
     $('taskList').innerHTML = '<div class="empty-state"><span class="empty-text">No tasks match filters</span></div>';
     return;
   }
-
-  var groups = {};
-  var noProject = [];
+  var groups = {}; var noProject = [];
   for (var i = 0; i < filtered.length; i++) {
     var t = filtered[i];
-    var proj = t.project_name || null;
-    if (proj) {
-      if (!groups[proj]) groups[proj] = [];
-      groups[proj].push(t);
-    } else {
-      noProject.push(t);
-    }
+    if (t.project_name) {
+      if (!groups[t.project_name]) groups[t.project_name] = [];
+      groups[t.project_name].push(t);
+    } else { noProject.push(t); }
   }
-
   var sortedKeys = Object.keys(groups).sort();
   var html = '';
-  for (var i = 0; i < sortedKeys.length; i++) {
-    html += renderGroup(sortedKeys[i], groups[sortedKeys[i]]);
-  }
-  if (noProject.length > 0) {
-    html += renderGroup('Unassigned', noProject);
-  }
-
+  for (var i = 0; i < sortedKeys.length; i++) html += renderListGroup(sortedKeys[i], groups[sortedKeys[i]]);
+  if (noProject.length > 0) html += renderListGroup('Unassigned', noProject);
   $('taskList').innerHTML = html;
 }
 
-function renderGroup(name, tasks) {
+function renderListGroup(name, tasks) {
   var statusOrder = { in_progress: 0, blocked: 1, not_started: 2, done: 3, closed: 4 };
   var prioOrder = { P0: 0, P1: 1, P2: 2, P3: 3 };
   tasks.sort(function(a, b) {
@@ -607,31 +661,21 @@ function renderGroup(name, tasks) {
     if (pd !== 0) return pd;
     return (statusOrder[a.status] || 9) - (statusOrder[b.status] || 9);
   });
-
-  var html = '<div class="project-group">';
-  html += '<div class="project-header">' + esc(name) + ' <span class="proj-count">' + tasks.length + '</span></div>';
-
+  var html = '<div class="project-group"><div class="project-header">' + esc(name) + ' <span class="proj-count">' + tasks.length + '</span></div>';
   for (var i = 0; i < tasks.length; i++) {
     var t = tasks[i];
     var isExpanded = state.expandedId === t.id;
-    var prioClass = (t.priority || 'P2').toLowerCase();
-
+    var pc = (t.priority || 'P2').toLowerCase();
     html += '<div class="task-card' + (isExpanded ? ' expanded' : '') + '" data-id="' + t.id + '">';
-    html += '<div class="task-card-top">';
-    html += '<span class="priority-badge ' + prioClass + '">' + esc(t.priority || 'P2') + '</span>';
-    html += '<div class="task-content">';
-    html += '<div class="task-title">' + esc(t.task) + '</div>';
-    html += '<div class="task-meta">';
-    html += '<span class="status-pill ' + t.status + '">' + statusLabel(t.status) + '</span>';
+    html += '<div class="task-card-top"><span class="priority-badge ' + pc + '">' + esc(t.priority || 'P2') + '</span>';
+    html += '<div class="task-content"><div class="task-title">' + esc(t.task) + '</div>';
+    html += '<div class="task-meta"><span class="status-pill ' + t.status + '">' + statusLabel(t.status) + '</span>';
     if (t.owner) html += '<span class="meta-text">' + esc(t.owner) + '</span>';
-    html += '<span class="meta-text">' + relativeTime(t.updated_at) + '</span>';
-    html += '</div></div></div>';
-
+    html += '<span class="meta-text">' + relativeTime(t.updated_at) + '</span></div></div></div>';
     html += '<div class="task-detail">';
     if (t.notes) html += '<div class="task-notes">' + esc(t.notes) + '</div>';
     html += '<div class="task-timestamps">Created ' + relativeTime(t.created_at) + '</div>';
     html += '<div class="task-actions">';
-
     if (t.status !== 'in_progress') html += '<button class="action-btn" data-action="status" data-val="in_progress" data-tid="' + t.id + '">Start</button>';
     if (t.status !== 'blocked') html += '<button class="action-btn" data-action="status" data-val="blocked" data-tid="' + t.id + '">Block</button>';
     if (t.status !== 'not_started' && t.status !== 'done') html += '<button class="action-btn" data-action="status" data-val="not_started" data-tid="' + t.id + '">Reset</button>';
@@ -643,14 +687,114 @@ function renderGroup(name, tasks) {
   return html;
 }
 
-function render() {
-  renderFilters();
-  renderTasks();
+function renderKanbanView() {
+  var all = state.tasks;
+  var filters = state.filters;
+  var filtered = [];
+  for (var i = 0; i < all.length; i++) {
+    var t = all[i];
+    if (t.status === 'closed') continue;
+    if (filters.priority && t.priority !== filters.priority) continue;
+    if (filters.project && t.project_name !== filters.project) continue;
+    filtered.push(t);
+  }
+  var totalActive = filtered.filter(function(t) { return t.status !== 'done'; }).length;
+  $('taskCount').textContent = totalActive + ' active';
+  if (state.loading) {
+    $('kanbanBoard').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div></div>';
+    return;
+  }
+  var buckets = {};
+  for (var i = 0; i < KANBAN_COLS.length; i++) buckets[KANBAN_COLS[i].status] = [];
+  for (var i = 0; i < filtered.length; i++) {
+    var t = filtered[i];
+    if (buckets[t.status]) buckets[t.status].push(t);
+  }
+  var html = '';
+  for (var c = 0; c < KANBAN_COLS.length; c++) {
+    var col = KANBAN_COLS[c];
+    var cards = sortTasks(buckets[col.status] || []);
+    html += '<div class="kanban-col" data-status="' + col.status + '">';
+    html += '<div class="kanban-col-header"><span>' + col.label + '</span><span class="col-count">' + cards.length + '</span></div>';
+    html += '<div class="kanban-col-body" data-status="' + col.status + '">';
+    for (var i = 0; i < cards.length; i++) {
+      var t = cards[i];
+      var pc = (t.priority || 'P2').toLowerCase();
+      html += '<div class="kanban-card" data-id="' + t.id + '" draggable="true">';
+      html += '<div class="kanban-card-top"><span class="priority-badge ' + pc + '">' + esc(t.priority || 'P2') + '</span>';
+      html += '<span class="kanban-card-title">' + esc(t.task) + '</span></div>';
+      html += '<div class="kanban-card-meta">';
+      if (t.project_name) html += '<span class="kanban-card-tag">' + esc(t.project_name) + '</span>';
+      if (t.owner) html += '<span class="kanban-card-owner">' + esc(t.owner) + '</span>';
+      html += '</div></div>';
+    }
+    html += '</div></div>';
+  }
+  $('kanbanBoard').innerHTML = html;
+  bindDragDrop();
 }
 
-// ============================================================
-// Data Loading
-// ============================================================
+var dragId = null;
+function bindDragDrop() {
+  var cards = document.querySelectorAll('.kanban-card');
+  var cols = document.querySelectorAll('.kanban-col-body');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('dragstart', function(e) {
+      dragId = this.dataset.id;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', dragId);
+    });
+    cards[i].addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+      dragId = null;
+      var bodies = document.querySelectorAll('.kanban-col-body');
+      for (var j = 0; j < bodies.length; j++) bodies[j].classList.remove('drag-over');
+    });
+  }
+  for (var i = 0; i < cols.length; i++) {
+    cols[i].addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      this.classList.add('drag-over');
+    });
+    cols[i].addEventListener('dragleave', function(e) {
+      if (!this.contains(e.relatedTarget)) this.classList.remove('drag-over');
+    });
+    cols[i].addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      var newStatus = this.dataset.status;
+      var tid = e.dataTransfer.getData('text/plain') || dragId;
+      if (!tid) return;
+      var task = state.tasks.find(function(t) { return t.id === tid; });
+      if (!task || task.status === newStatus) return;
+      task.status = newStatus;
+      task.updated_at = new Date().toISOString();
+      render();
+      toast('\u2192 ' + statusLabel(newStatus));
+      api.updateTask(tid, { status: newStatus }).catch(function(err) {
+        toast(err.message, 'error');
+        loadTasks();
+      });
+    });
+  }
+}
+
+function render() {
+  var view = effectiveView();
+  renderFilters();
+  if (view === 'board') {
+    $('taskList').classList.add('hidden');
+    $('kanbanBoard').classList.add('visible');
+    renderKanbanView();
+  } else {
+    $('kanbanBoard').classList.remove('visible');
+    $('taskList').classList.remove('hidden');
+    renderListView();
+  }
+}
+
 async function loadTasks() {
   state.loading = true;
   render();
@@ -671,26 +815,20 @@ async function loadTasks() {
   }
 }
 
-// ============================================================
-// Events
-// ============================================================
+$('viewList').addEventListener('click', function() { setViewMode('list'); });
+$('viewBoard').addEventListener('click', function() { setViewMode('board'); });
+window.addEventListener('resize', function() { render(); });
+
 $('filterRow').addEventListener('click', function(e) {
   var chip = e.target.closest('.filter-chip');
   if (!chip) return;
-  var filterType = chip.dataset.filter;
+  var ft = chip.dataset.filter;
   var val = chip.dataset.val;
-
-  if (filterType === 'clear') {
-    state.filters = { status: null, priority: null, project: null };
-  } else if (filterType === 'showDone') {
-    state.showDone = !state.showDone;
-  } else if (filterType === 'status') {
-    state.filters.status = state.filters.status === val ? null : val;
-  } else if (filterType === 'priority') {
-    state.filters.priority = state.filters.priority === val ? null : val;
-  } else if (filterType === 'project') {
-    state.filters.project = state.filters.project === val ? null : val;
-  }
+  if (ft === 'clear') { state.filters = { status: null, priority: null, project: null }; }
+  else if (ft === 'showDone') { state.showDone = !state.showDone; }
+  else if (ft === 'status') { state.filters.status = state.filters.status === val ? null : val; }
+  else if (ft === 'priority') { state.filters.priority = state.filters.priority === val ? null : val; }
+  else if (ft === 'project') { state.filters.project = state.filters.project === val ? null : val; }
   render();
 });
 
@@ -698,33 +836,23 @@ $('taskList').addEventListener('click', async function(e) {
   var actionBtn = e.target.closest('.action-btn');
   if (actionBtn) {
     e.stopPropagation();
-    var action = actionBtn.dataset.action;
     var tid = actionBtn.dataset.tid;
-
-    if (action === 'status') {
+    if (actionBtn.dataset.action === 'status') {
       var newStatus = actionBtn.dataset.val;
       try {
-        actionBtn.disabled = true;
-        actionBtn.textContent = '...';
+        actionBtn.disabled = true; actionBtn.textContent = '...';
         await api.updateTask(tid, { status: newStatus });
         var t = state.tasks.find(function(x) { return x.id === tid; });
-        if (t) {
-          t.status = newStatus;
-          t.updated_at = new Date().toISOString();
-        }
+        if (t) { t.status = newStatus; t.updated_at = new Date().toISOString(); }
         toast('\u2192 ' + statusLabel(newStatus));
         render();
-      } catch (err) {
-        toast(err.message, 'error');
-        render();
-      }
-    } else if (action === 'edit') {
+      } catch (err) { toast(err.message, 'error'); render(); }
+    } else if (actionBtn.dataset.action === 'edit') {
       var task = state.tasks.find(function(x) { return x.id === tid; });
       if (task) openEditSheet(task);
     }
     return;
   }
-
   var card = e.target.closest('.task-card');
   if (!card) return;
   var id = card.dataset.id;
@@ -732,12 +860,16 @@ $('taskList').addEventListener('click', async function(e) {
   render();
 });
 
+$('kanbanBoard').addEventListener('click', function(e) {
+  var card = e.target.closest('.kanban-card');
+  if (!card) return;
+  var task = state.tasks.find(function(t) { return t.id === card.dataset.id; });
+  if (task) openEditSheet(task);
+});
+
 $('fabBtn').addEventListener('click', function() { openCreateSheet(); });
 $('sheetBackdrop').addEventListener('click', closeSheet);
 
-// ============================================================
-// Bottom Sheet: Create
-// ============================================================
 function openCreateSheet() {
   $('sheetTitle').textContent = 'New Task';
   var projOptions = state.allProjects.map(function(p) { return '<option value="' + esc(p) + '">'; }).join('');
@@ -750,46 +882,34 @@ function openCreateSheet() {
     '<div class="field-group"><div class="field-label">Notes</div><textarea class="field-textarea" id="fNotes" placeholder="Optional notes"></textarea></div>' +
     '<button class="sheet-submit" id="sheetSubmit">Create Task</button>';
   openSheet();
-
   $('sheetSubmit').addEventListener('click', async function() {
     var task = $('fTask').value.trim();
     if (!task) return;
-    $('sheetSubmit').disabled = true;
-    $('sheetSubmit').textContent = 'Creating...';
+    $('sheetSubmit').disabled = true; $('sheetSubmit').textContent = 'Creating...';
     try {
       var newTask = await api.createTask({
-        task: task,
-        priority: $('fPriority').value,
-        status: $('fStatus').value,
+        task: task, priority: $('fPriority').value, status: $('fStatus').value,
         project_name: $('fProject').value.trim() || null,
         owner: $('fOwner').value.trim() || null,
         notes: $('fNotes').value.trim() || null,
       });
       state.tasks.unshift(newTask);
       if (newTask.project_name && state.allProjects.indexOf(newTask.project_name) === -1) {
-        state.allProjects.push(newTask.project_name);
-        state.allProjects.sort();
+        state.allProjects.push(newTask.project_name); state.allProjects.sort();
       }
-      closeSheet();
-      toast('Task created');
-      render();
+      closeSheet(); toast('Task created'); render();
     } catch (err) {
       toast(err.message, 'error');
-      $('sheetSubmit').disabled = false;
-      $('sheetSubmit').textContent = 'Create Task';
+      $('sheetSubmit').disabled = false; $('sheetSubmit').textContent = 'Create Task';
     }
   });
 }
 
-// ============================================================
-// Bottom Sheet: Edit
-// ============================================================
 function openEditSheet(task) {
   $('sheetTitle').textContent = 'Edit Task';
   var projOptions = state.allProjects.map(function(p) { return '<option value="' + esc(p) + '">'; }).join('');
   var prioOptions = ['P0','P1','P2','P3'].map(function(p) { return '<option value="' + p + '"' + (task.priority===p?' selected':'') + '>' + p + '</option>'; }).join('');
   var statusOptions = ['not_started','in_progress','blocked','done','closed'].map(function(s) { return '<option value="' + s + '"' + (task.status===s?' selected':'') + '>' + statusLabel(s) + '</option>'; }).join('');
-
   $('sheetBody').innerHTML =
     '<div class="field-group"><div class="field-label">Task</div><input class="field-input" id="fTask" value="' + esc(task.task) + '"></div>' +
     '<div class="field-row"><div class="field-group"><div class="field-label">Priority</div><select class="field-select" id="fPriority">' + prioOptions + '</select></div>' +
@@ -799,10 +919,8 @@ function openEditSheet(task) {
     '<div class="field-group"><div class="field-label">Notes</div><textarea class="field-textarea" id="fNotes">' + esc(task.notes || '') + '</textarea></div>' +
     '<button class="sheet-submit" id="sheetSubmit">Save Changes</button>';
   openSheet();
-
   $('sheetSubmit').addEventListener('click', async function() {
-    $('sheetSubmit').disabled = true;
-    $('sheetSubmit').textContent = 'Saving...';
+    $('sheetSubmit').disabled = true; $('sheetSubmit').textContent = 'Saving...';
     try {
       var updates = {};
       var nTask = $('fTask').value.trim();
@@ -811,48 +929,31 @@ function openEditSheet(task) {
       var nProject = $('fProject').value.trim() || null;
       var nOwner = $('fOwner').value.trim() || null;
       var nNotes = $('fNotes').value.trim() || null;
-
       if (nTask !== task.task) updates.task = nTask;
       if (nPriority !== task.priority) updates.priority = nPriority;
       if (nStatus !== task.status) updates.status = nStatus;
       if (nProject !== task.project_name) updates.project_name = nProject;
       if (nOwner !== task.owner) updates.owner = nOwner;
       if (nNotes !== task.notes) updates.notes = nNotes;
-
       if (Object.keys(updates).length === 0) { closeSheet(); return; }
-
       var updated = await api.updateTask(task.id, updates);
       var idx = state.tasks.findIndex(function(t) { return t.id === task.id; });
       if (idx >= 0) Object.assign(state.tasks[idx], updated);
       if (updated.project_name && state.allProjects.indexOf(updated.project_name) === -1) {
-        state.allProjects.push(updated.project_name);
-        state.allProjects.sort();
+        state.allProjects.push(updated.project_name); state.allProjects.sort();
       }
-      closeSheet();
-      toast('Task updated');
-      render();
+      closeSheet(); toast('Task updated'); render();
     } catch (err) {
       toast(err.message, 'error');
-      $('sheetSubmit').disabled = false;
-      $('sheetSubmit').textContent = 'Save Changes';
+      $('sheetSubmit').disabled = false; $('sheetSubmit').textContent = 'Save Changes';
     }
   });
 }
 
-function openSheet() {
-  $('sheetBackdrop').classList.add('open');
-  $('sheet').classList.add('open');
-}
-function closeSheet() {
-  $('sheetBackdrop').classList.remove('open');
-  $('sheet').classList.remove('open');
-}
+function openSheet() { $('sheetBackdrop').classList.add('open'); $('sheet').classList.add('open'); }
+function closeSheet() { $('sheetBackdrop').classList.remove('open'); $('sheet').classList.remove('open'); }
 
-// ============================================================
-// Auth
-// ============================================================
 function getToken() { return localStorage.getItem('supabrain_token') || ''; }
-
 function updateConnectionUI() {
   if (getToken()) {
     $('configDot').classList.add('connected');
@@ -864,7 +965,6 @@ function updateConnectionUI() {
     $('setupOverlay').classList.remove('hidden');
   }
 }
-
 $('saveTokenBtn').addEventListener('click', function() {
   var t = $('tokenInput').value.trim();
   if (!t) return;
@@ -872,22 +972,19 @@ $('saveTokenBtn').addEventListener('click', function() {
   updateConnectionUI();
   loadTasks();
 });
-
 var cpt;
 document.querySelector('.config-bar').addEventListener('pointerdown', function() {
   cpt = setTimeout(function() {
-    if (confirm('Reset connection?')) {
-      localStorage.removeItem('supabrain_token');
-      updateConnectionUI();
-    }
+    if (confirm('Reset connection?')) { localStorage.removeItem('supabrain_token'); updateConnectionUI(); }
   }, 1500);
 });
 document.querySelector('.config-bar').addEventListener('pointerup', function() { clearTimeout(cpt); });
 document.querySelector('.config-bar').addEventListener('pointerleave', function() { clearTimeout(cpt); });
 
-// ============================================================
-// Init
-// ============================================================
+var savedView = localStorage.getItem('supabrain_view');
+if (savedView === 'board') state.viewMode = 'board';
+$('viewList').className = 'view-toggle-btn' + (state.viewMode === 'list' ? ' active' : '');
+$('viewBoard').className = 'view-toggle-btn' + (state.viewMode === 'board' ? ' active' : '');
 updateConnectionUI();
 if (getToken()) loadTasks();
 </script>
