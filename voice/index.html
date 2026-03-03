@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>SupaBrain Voice</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #1e1e2a;
+      --text: #e0e0e8;
+      --text-dim: #6b6b80;
+      --accent: #00d4aa;
+      --accent-glow: rgba(0, 212, 170, 0.15);
+      --danger: #ff4466;
+      --warning: #ffaa33;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+    .header { text-align: center; }
+    .header h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .header p { font-size: 0.8rem; color: var(--text-dim); font-weight: 300; }
+    .mic-container { position: relative; width: 160px; height: 160px; }
+    .mic-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid var(--border);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .mic-btn {
+      position: absolute; inset: 12px; border-radius: 50%;
+      background: var(--surface); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, transform 0.1s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .mic-btn:active { transform: scale(0.95); }
+    .mic-btn svg { width: 40px; height: 40px; fill: var(--text-dim); transition: fill 0.3s; }
+    .recording .mic-ring {
+      border-color: var(--danger);
+      box-shadow: 0 0 30px rgba(255, 68, 102, 0.3);
+      animation: pulse-ring 1.5s ease-in-out infinite;
+    }
+    .recording .mic-btn { background: rgba(255, 68, 102, 0.15); }
+    .recording .mic-btn svg { fill: var(--danger); }
+    .processing .mic-ring {
+      border-color: var(--warning);
+      animation: spin-ring 1s linear infinite;
+    }
+    .processing .mic-btn { background: rgba(255, 170, 51, 0.1); cursor: wait; }
+    .processing .mic-btn svg { fill: var(--warning); }
+    .success .mic-ring {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+    .success .mic-btn svg { fill: var(--accent); }
+    @keyframes pulse-ring {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.7; }
+    }
+    @keyframes spin-ring {
+      0% { border-color: var(--warning) transparent transparent transparent; }
+      25% { border-color: transparent var(--warning) transparent transparent; }
+      50% { border-color: transparent transparent var(--warning) transparent; }
+      75% { border-color: transparent transparent transparent var(--warning); }
+    }
+    .status {
+      text-align: center; min-height: 60px;
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    }
+    .status-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-dim);
+    }
+    .status-text {
+      font-size: 0.85rem; color: var(--text); font-weight: 300;
+      max-width: 300px; line-height: 1.5;
+    }
+    .status-text.error { color: var(--danger); }
+    .status-text.success-text { color: var(--accent); }
+    .transcription {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 1rem; font-size: 0.85rem; line-height: 1.6;
+      color: var(--text); max-height: 120px; overflow-y: auto;
+      display: none; font-weight: 300;
+    }
+    .transcription.visible { display: block; }
+    .timer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem; color: var(--danger);
+      font-weight: 600; display: none;
+    }
+    .recording .timer { display: block; }
+    .config-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 0.75rem 1rem; background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .config-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
+    .config-dot.connected { background: var(--accent); }
+    .config-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.05em;
+    }
+    .setup-overlay {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 1.5rem; padding: 2rem; z-index: 100;
+    }
+    .setup-overlay.hidden { display: none; }
+    .setup-overlay h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--accent);
+    }
+    .setup-overlay input {
+      width: 100%; max-width: 360px; padding: 0.75rem 1rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; outline: none;
+    }
+    .setup-overlay input:focus { border-color: var(--accent); }
+    .setup-overlay input::placeholder { color: var(--text-dim); }
+    .setup-overlay button {
+      padding: 0.6rem 2rem; background: var(--accent); color: var(--bg);
+      border: none; border-radius: 6px; font-family: 'Outfit', sans-serif;
+      font-weight: 600; font-size: 0.85rem; cursor: pointer;
+    }
+    .setup-overlay .note {
+      font-size: 0.7rem; color: var(--text-dim);
+      text-align: center; max-width: 300px; line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="setup-overlay" id="setupOverlay">
+    <h2>SupaBrain Voice</h2>
+    <p class="note">Enter your brain-api bearer token to connect. Stored locally in your browser only.</p>
+    <input type="password" id="tokenInput" placeholder="Bearer token" autocomplete="off">
+    <button id="saveTokenBtn">Connect</button>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>SupaBrain Voice</h1>
+      <p>Tap to capture a thought</p>
+    </div>
+    <div class="mic-container" id="micContainer">
+      <div class="mic-ring"></div>
+      <button class="mic-btn" id="micBtn" aria-label="Record">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </button>
+    </div>
+    <div class="timer" id="timer">0:00</div>
+    <div class="status">
+      <span class="status-label" id="statusLabel">Ready</span>
+      <span class="status-text" id="statusText">Tap the mic to start recording</span>
+    </div>
+    <div class="transcription" id="transcription"></div>
+  </div>
+  <div class="config-bar">
+    <div class="config-dot" id="configDot"></div>
+    <span class="config-label" id="configLabel">disconnected</span>
+  </div>
+
+  <script>
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let isProcessing = false;
+    let timerInterval = null;
+    let seconds = 0;
+
+    const ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice-capture';
+
+    const $ = id => document.getElementById(id);
+
+    function getToken() { return localStorage.getItem('supabrain_token') || ''; }
+
+    function updateUI() {
+      if (getToken()) {
+        $('configDot').classList.add('connected');
+        $('configLabel').textContent = 'connected';
+        $('setupOverlay').classList.add('hidden');
+      } else {
+        $('configDot').classList.remove('connected');
+        $('configLabel').textContent = 'disconnected';
+        $('setupOverlay').classList.remove('hidden');
+      }
+    }
+
+    $('saveTokenBtn').addEventListener('click', () => {
+      const t = $('tokenInput').value.trim();
+      if (!t) return;
+      localStorage.setItem('supabrain_token', t);
+      updateUI();
+    });
+
+    let cpt;
+    document.querySelector('.config-bar').addEventListener('pointerdown', () => {
+      cpt = setTimeout(() => {
+        if (confirm('Reset connection?')) {
+          localStorage.removeItem('supabrain_token');
+          updateUI();
+        }
+      }, 1500);
+    });
+    document.querySelector('.config-bar').addEventListener('pointerup', () => clearTimeout(cpt));
+    document.querySelector('.config-bar').addEventListener('pointerleave', () => clearTimeout(cpt));
+
+    function startTimer() {
+      seconds = 0;
+      $('timer').textContent = '0:00';
+      timerInterval = setInterval(() => {
+        seconds++;
+        $('timer').textContent = `${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`;
+      }, 1000);
+    }
+    function stopTimer() { clearInterval(timerInterval); }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+
+        mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+          await sendAudio(blob, mediaRecorder.mimeType);
+        };
+        mediaRecorder.start(250);
+        isRecording = true;
+        $('micContainer').className = 'mic-container recording';
+        $('statusLabel').textContent = 'Recording';
+        $('statusText').textContent = 'Tap again to stop';
+        $('statusText').className = 'status-text';
+        $('transcription').classList.remove('visible');
+        startTimer();
+      } catch (err) {
+        $('statusLabel').textContent = 'Error';
+        $('statusText').textContent = 'Mic access denied. Check permissions.';
+        $('statusText').className = 'status-text error';
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+      isRecording = false;
+      stopTimer();
+      $('micContainer').className = 'mic-container processing';
+      $('statusLabel').textContent = 'Processing';
+      $('statusText').textContent = 'Transcribing and capturing...';
+      $('statusText').className = 'status-text';
+      isProcessing = true;
+    }
+
+    async function sendAudio(blob, mimeType) {
+      const token = getToken();
+      const fd = new FormData();
+      const ext = mimeType.includes('mp4') ? 'm4a' : 'webm';
+      fd.append('audio', new File([blob], `recording.${ext}`, { type: mimeType }));
+      fd.append('source', 'voice');
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+        isProcessing = false;
+        $('micContainer').className = 'mic-container success';
+        $('statusLabel').textContent = 'Captured';
+        $('statusText').textContent = data.metadata?.topics?.join(', ') || 'Thought stored';
+        $('statusText').className = 'status-text success-text';
+        $('transcription').textContent = data.transcription;
+        $('transcription').classList.add('visible');
+
+        setTimeout(() => {
+          $('micContainer').className = 'mic-container';
+          $('statusLabel').textContent = 'Ready';
+          $('statusText').textContent = 'Tap the mic to start recording';
+          $('statusText').className = 'status-text';
+        }, 4000);
+      } catch (err) {
+        isProcessing = false;
+        $('micContainer').className = 'mic-container';
+        $('statusLabel').textContent = 'Error';
+        $('statusText').textContent = err.message;
+        $('statusText').className = 'status-text error';
+      }
+    }
+
+    $('micBtn').addEventListener('click', () => {
+      if (isProcessing) return;
+      isRecording ? stopRecording() : startRecording();
+    });
+
+    updateUI();
+  </script>
+</body>
+</html>
