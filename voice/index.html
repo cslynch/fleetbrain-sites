@@ -43,7 +43,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1.5rem;
+      gap: 2rem;
     }
     .header { text-align: center; }
     .header h1 {
@@ -56,42 +56,7 @@
       margin-bottom: 0.25rem;
     }
     .header p { font-size: 0.8rem; color: var(--text-dim); font-weight: 300; }
-    .header p .mode-label { transition: color 0.3s; }
 
-    /* Mode toggle */
-    .mode-toggle {
-      display: flex;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .mode-btn {
-      flex: 1;
-      padding: 0.5rem 1.25rem;
-      background: transparent;
-      border: none;
-      color: var(--text-dim);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .mode-btn.active-capture {
-      background: var(--accent-glow);
-      color: var(--accent);
-    }
-    .mode-btn.active-ask {
-      background: var(--ask-glow);
-      color: var(--ask);
-    }
-
-    /* Mic */
     .mic-container { position: relative; width: 160px; height: 160px; }
     .mic-ring {
       position: absolute; inset: 0; border-radius: 50%;
@@ -108,11 +73,6 @@
     .mic-btn:active { transform: scale(0.95); }
     .mic-btn svg { width: 40px; height: 40px; fill: var(--text-dim); transition: fill 0.3s; }
 
-    /* Ask mode idle — purple tint */
-    .ask-mode .mic-ring { border-color: rgba(123, 97, 255, 0.3); }
-    .ask-mode .mic-btn svg { fill: var(--ask); }
-
-    /* Recording */
     .recording .mic-ring {
       border-color: var(--danger);
       box-shadow: 0 0 30px rgba(255, 68, 102, 0.3);
@@ -121,7 +81,6 @@
     .recording .mic-btn { background: rgba(255, 68, 102, 0.15); }
     .recording .mic-btn svg { fill: var(--danger); }
 
-    /* Processing */
     .processing .mic-ring {
       border-color: var(--warning);
       animation: spin-ring 1s linear infinite;
@@ -129,19 +88,17 @@
     .processing .mic-btn { background: rgba(255, 170, 51, 0.1); cursor: wait; }
     .processing .mic-btn svg { fill: var(--warning); }
 
-    /* Success — capture */
     .success-capture .mic-ring {
       border-color: var(--accent);
       box-shadow: 0 0 30px var(--accent-glow);
     }
     .success-capture .mic-btn svg { fill: var(--accent); }
 
-    /* Success — ask */
-    .success-ask .mic-ring {
+    .success-recall .mic-ring {
       border-color: var(--ask);
       box-shadow: 0 0 30px var(--ask-glow);
     }
-    .success-ask .mic-btn svg { fill: var(--ask); }
+    .success-recall .mic-btn svg { fill: var(--ask); }
 
     @keyframes pulse-ring {
       0%, 100% { transform: scale(1); opacity: 1; }
@@ -154,7 +111,6 @@
       75% { border-color: transparent transparent transparent var(--warning); }
     }
 
-    /* Status */
     .status {
       text-align: center; min-height: 60px;
       display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
@@ -172,17 +128,16 @@
     .status-text.success-text { color: var(--accent); }
     .status-text.ask-text { color: var(--ask); }
 
-    /* Result panels */
-    .transcription, .recall-result {
+    .result-panel {
       width: 100%; background: var(--surface);
       border: 1px solid var(--border); border-radius: 8px;
       padding: 1rem; font-size: 0.85rem; line-height: 1.6;
       color: var(--text); max-height: 200px; overflow-y: auto;
       display: none; font-weight: 300;
     }
-    .transcription.visible, .recall-result.visible { display: block; }
-    .recall-result { border-color: rgba(123, 97, 255, 0.3); }
-    .recall-result .recall-query {
+    .result-panel.visible { display: block; }
+    .result-panel.recall { border-color: rgba(123, 97, 255, 0.3); }
+    .result-panel .recall-query {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem; color: var(--ask);
       margin-bottom: 0.5rem; letter-spacing: 0.05em;
@@ -195,7 +150,6 @@
     }
     .recording .timer { display: block; }
 
-    /* Config bar */
     .config-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       padding: 0.75rem 1rem; background: var(--surface);
@@ -209,7 +163,6 @@
       font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.05em;
     }
 
-    /* Setup */
     .setup-overlay {
       position: fixed; inset: 0; background: var(--bg);
       display: flex; flex-direction: column; align-items: center;
@@ -251,29 +204,23 @@
   <div class="container">
     <div class="header">
       <h1>SupaBrain Voice</h1>
-      <p><span class="mode-label" id="modeLabel">Tap to capture a thought</span></p>
-    </div>
-
-    <div class="mode-toggle">
-      <button class="mode-btn active-capture" id="captureMode">Capture</button>
-      <button class="mode-btn" id="askMode">Ask</button>
+      <p>Speak a thought or ask a question</p>
     </div>
 
     <div class="mic-container" id="micContainer">
       <div class="mic-ring"></div>
       <button class="mic-btn" id="micBtn" aria-label="Record">
-        <svg id="micIcon" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
       </button>
     </div>
     <div class="timer" id="timer">0:00</div>
     <div class="status">
       <span class="status-label" id="statusLabel">Ready</span>
-      <span class="status-text" id="statusText">Tap the mic to start recording</span>
+      <span class="status-text" id="statusText">Tap the mic to start</span>
     </div>
-    <div class="transcription" id="transcription"></div>
-    <div class="recall-result" id="recallResult">
+    <div class="result-panel" id="resultPanel">
       <div class="recall-query" id="recallQuery"></div>
-      <div id="recallSummary"></div>
+      <div id="resultText"></div>
     </div>
   </div>
   <div class="config-bar">
@@ -288,10 +235,8 @@
     let isProcessing = false;
     let timerInterval = null;
     let seconds = 0;
-    let mode = 'capture'; // 'capture' or 'ask'
 
-    const CAPTURE_ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice-capture';
-    const RECALL_ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice-recall';
+    const ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice';
 
     const $ = id => document.getElementById(id);
 
@@ -308,29 +253,6 @@
         $('setupOverlay').classList.remove('hidden');
       }
     }
-
-    function setMode(newMode) {
-      mode = newMode;
-      // Toggle buttons
-      $('captureMode').className = mode === 'capture' ? 'mode-btn active-capture' : 'mode-btn';
-      $('askMode').className = mode === 'ask' ? 'mode-btn active-ask' : 'mode-btn';
-      // Update label
-      $('modeLabel').textContent = mode === 'capture' ? 'Tap to capture a thought' : 'Tap to ask your brain';
-      // Update mic container idle state
-      if (!isRecording && !isProcessing) {
-        $('micContainer').className = mode === 'ask' ? 'mic-container ask-mode' : 'mic-container';
-      }
-      // Hide previous results
-      $('transcription').classList.remove('visible');
-      $('recallResult').classList.remove('visible');
-      // Reset status
-      $('statusLabel').textContent = 'Ready';
-      $('statusText').textContent = mode === 'capture' ? 'Tap the mic to start recording' : 'Tap the mic to ask a question';
-      $('statusText').className = 'status-text';
-    }
-
-    $('captureMode').addEventListener('click', () => setMode('capture'));
-    $('askMode').addEventListener('click', () => setMode('ask'));
 
     $('saveTokenBtn').addEventListener('click', () => {
       const t = $('tokenInput').value.trim();
@@ -374,11 +296,7 @@
         mediaRecorder.onstop = async () => {
           stream.getTracks().forEach(t => t.stop());
           const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
-          if (mode === 'capture') {
-            await sendCapture(blob, mediaRecorder.mimeType);
-          } else {
-            await sendRecall(blob, mediaRecorder.mimeType);
-          }
+          await sendAudio(blob, mediaRecorder.mimeType);
         };
         mediaRecorder.start(250);
         isRecording = true;
@@ -386,8 +304,8 @@
         $('statusLabel').textContent = 'Recording';
         $('statusText').textContent = 'Tap again to stop';
         $('statusText').className = 'status-text';
-        $('transcription').classList.remove('visible');
-        $('recallResult').classList.remove('visible');
+        $('resultPanel').classList.remove('visible');
+        $('resultPanel').classList.remove('recall');
         startTimer();
       } catch (err) {
         $('statusLabel').textContent = 'Error';
@@ -402,12 +320,12 @@
       stopTimer();
       $('micContainer').className = 'mic-container processing';
       $('statusLabel').textContent = 'Processing';
-      $('statusText').textContent = mode === 'capture' ? 'Transcribing and capturing...' : 'Searching your brain...';
+      $('statusText').textContent = 'Listening...';
       $('statusText').className = 'status-text';
       isProcessing = true;
     }
 
-    async function sendCapture(blob, mimeType) {
+    async function sendAudio(blob, mimeType) {
       const token = getToken();
       const fd = new FormData();
       const ext = mimeType.includes('mp4') ? 'm4a' : 'webm';
@@ -415,7 +333,7 @@
       fd.append('source', 'voice');
 
       try {
-        const res = await fetch(CAPTURE_ENDPOINT, {
+        const res = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
           body: fd,
@@ -424,62 +342,43 @@
         if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
 
         isProcessing = false;
-        $('micContainer').className = 'mic-container success-capture';
-        $('statusLabel').textContent = 'Captured';
-        $('statusText').textContent = data.metadata?.topics?.join(', ') || 'Thought stored';
-        $('statusText').className = 'status-text success-text';
-        $('transcription').textContent = data.transcription;
-        $('transcription').classList.add('visible');
 
-        setTimeout(() => resetToIdle(), 4000);
+        if (data.action === 'recalled') {
+          // Recall response
+          $('micContainer').className = 'mic-container success-recall';
+          $('statusLabel').textContent = `${data.results_count || 0} memories found`;
+          $('statusText').textContent = '';
+          $('recallQuery').textContent = `"${data.query}"`;
+          $('recallQuery').style.display = 'block';
+          $('resultText').textContent = data.summary;
+          $('resultPanel').classList.add('recall');
+          $('resultPanel').classList.add('visible');
+          // No auto-reset — let user read
+        } else {
+          // Capture response
+          $('micContainer').className = 'mic-container success-capture';
+          $('statusLabel').textContent = 'Captured';
+          $('statusText').textContent = data.metadata?.topics?.join(', ') || 'Thought stored';
+          $('statusText').className = 'status-text success-text';
+          $('recallQuery').style.display = 'none';
+          $('resultText').textContent = data.transcription;
+          $('resultPanel').classList.remove('recall');
+          $('resultPanel').classList.add('visible');
+
+          setTimeout(() => {
+            $('micContainer').className = 'mic-container';
+            $('statusLabel').textContent = 'Ready';
+            $('statusText').textContent = 'Tap the mic to start';
+            $('statusText').className = 'status-text';
+          }, 4000);
+        }
       } catch (err) {
-        handleError(err.message);
-      }
-    }
-
-    async function sendRecall(blob, mimeType) {
-      const token = getToken();
-      const fd = new FormData();
-      const ext = mimeType.includes('mp4') ? 'm4a' : 'webm';
-      fd.append('audio', new File([blob], `recording.${ext}`, { type: mimeType }));
-
-      try {
-        const res = await fetch(RECALL_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: fd,
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-
         isProcessing = false;
-        $('micContainer').className = 'mic-container success-ask';
-        $('statusLabel').textContent = `${data.results_count || 0} memories found`;
-        $('statusText').textContent = '';
-        $('statusText').className = 'status-text';
-        $('recallQuery').textContent = `"${data.query}"`;
-        $('recallSummary').textContent = data.summary;
-        $('recallResult').classList.add('visible');
-
-        // Don't auto-reset for ask mode — let user read
-      } catch (err) {
-        handleError(err.message);
+        $('micContainer').className = 'mic-container';
+        $('statusLabel').textContent = 'Error';
+        $('statusText').textContent = err.message;
+        $('statusText').className = 'status-text error';
       }
-    }
-
-    function handleError(msg) {
-      isProcessing = false;
-      $('micContainer').className = mode === 'ask' ? 'mic-container ask-mode' : 'mic-container';
-      $('statusLabel').textContent = 'Error';
-      $('statusText').textContent = msg;
-      $('statusText').className = 'status-text error';
-    }
-
-    function resetToIdle() {
-      $('micContainer').className = mode === 'ask' ? 'mic-container ask-mode' : 'mic-container';
-      $('statusLabel').textContent = 'Ready';
-      $('statusText').textContent = mode === 'capture' ? 'Tap the mic to start recording' : 'Tap the mic to ask a question';
-      $('statusText').className = 'status-text';
     }
 
     $('micBtn').addEventListener('click', () => {
@@ -487,11 +386,6 @@
       if (isRecording) {
         stopRecording();
       } else {
-        // If showing ask results, reset first
-        if (mode === 'ask' && $('recallResult').classList.contains('visible')) {
-          $('recallResult').classList.remove('visible');
-          resetToIdle();
-        }
         startRecording();
       }
     });
