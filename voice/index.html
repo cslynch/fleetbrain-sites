@@ -23,6 +23,8 @@
       --warning: #ffaa33;
       --ask: #7b61ff;
       --ask-glow: rgba(123, 97, 255, 0.15);
+      --stan: #ff8844;
+      --stan-glow: rgba(255, 136, 68, 0.15);
     }
     body {
       font-family: 'Outfit', sans-serif;
@@ -43,7 +45,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2rem;
+      gap: 1.5rem;
     }
     .header { text-align: center; }
     .header h1 {
@@ -52,11 +54,54 @@
       font-weight: 600;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.25rem;
+      transition: color 0.3s;
     }
+    .header h1.brain-title { color: var(--accent); }
+    .header h1.stan-title { color: var(--stan); }
     .header p { font-size: 0.8rem; color: var(--text-dim); font-weight: 300; }
 
+    /* Target slider */
+    .target-slider {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3px;
+      position: relative;
+      width: 220px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .target-slider .slider-track {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: calc(50% - 3px);
+      height: calc(100% - 6px);
+      border-radius: 20px;
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+    .target-slider .slider-track.brain { background: var(--accent-glow); transform: translateX(0); }
+    .target-slider .slider-track.stan { background: var(--stan-glow); transform: translateX(100%); }
+    .target-option {
+      flex: 1;
+      padding: 0.45rem 0;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      transition: color 0.25s;
+      position: relative;
+      z-index: 1;
+    }
+    .target-option.active-brain { color: var(--accent); }
+    .target-option.active-stan { color: var(--stan); }
+
+    /* Mic */
     .mic-container { position: relative; width: 160px; height: 160px; }
     .mic-ring {
       position: absolute; inset: 0; border-radius: 50%;
@@ -73,6 +118,10 @@
     .mic-btn:active { transform: scale(0.95); }
     .mic-btn svg { width: 40px; height: 40px; fill: var(--text-dim); transition: fill 0.3s; }
 
+    /* Stan idle */
+    .stan-idle .mic-ring { border-color: rgba(255, 136, 68, 0.3); }
+    .stan-idle .mic-btn svg { fill: var(--stan); }
+
     .recording .mic-ring {
       border-color: var(--danger);
       box-shadow: 0 0 30px rgba(255, 68, 102, 0.3);
@@ -88,17 +137,14 @@
     .processing .mic-btn { background: rgba(255, 170, 51, 0.1); cursor: wait; }
     .processing .mic-btn svg { fill: var(--warning); }
 
-    .success-capture .mic-ring {
-      border-color: var(--accent);
-      box-shadow: 0 0 30px var(--accent-glow);
-    }
+    .success-capture .mic-ring { border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
     .success-capture .mic-btn svg { fill: var(--accent); }
 
-    .success-recall .mic-ring {
-      border-color: var(--ask);
-      box-shadow: 0 0 30px var(--ask-glow);
-    }
+    .success-recall .mic-ring { border-color: var(--ask); box-shadow: 0 0 30px var(--ask-glow); }
     .success-recall .mic-btn svg { fill: var(--ask); }
+
+    .success-stan .mic-ring { border-color: var(--stan); box-shadow: 0 0 30px var(--stan-glow); }
+    .success-stan .mic-btn svg { fill: var(--stan); }
 
     @keyframes pulse-ring {
       0%, 100% { transform: scale(1); opacity: 1; }
@@ -126,22 +172,25 @@
     }
     .status-text.error { color: var(--danger); }
     .status-text.success-text { color: var(--accent); }
-    .status-text.ask-text { color: var(--ask); }
+    .status-text.stan-text { color: var(--stan); }
 
     .result-panel {
       width: 100%; background: var(--surface);
       border: 1px solid var(--border); border-radius: 8px;
       padding: 1rem; font-size: 0.85rem; line-height: 1.6;
-      color: var(--text); max-height: 200px; overflow-y: auto;
+      color: var(--text); max-height: 250px; overflow-y: auto;
       display: none; font-weight: 300;
     }
     .result-panel.visible { display: block; }
     .result-panel.recall { border-color: rgba(123, 97, 255, 0.3); }
-    .result-panel .recall-query {
+    .result-panel.stan-result { border-color: rgba(255, 136, 68, 0.3); }
+    .result-panel .result-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem; color: var(--ask);
+      font-size: 0.7rem;
       margin-bottom: 0.5rem; letter-spacing: 0.05em;
     }
+    .result-panel .result-label.recall-label { color: var(--ask); }
+    .result-panel .result-label.stan-label { color: var(--stan); }
 
     .timer {
       font-family: 'JetBrains Mono', monospace;
@@ -203,8 +252,14 @@
 
   <div class="container">
     <div class="header">
-      <h1>SupaBrain Voice</h1>
-      <p>Speak a thought or ask a question</p>
+      <h1 id="title" class="brain-title">SupaBrain</h1>
+      <p id="subtitle">Speak a thought or ask a question</p>
+    </div>
+
+    <div class="target-slider" id="targetSlider">
+      <div class="slider-track brain" id="sliderTrack"></div>
+      <div class="target-option active-brain" id="optBrain">Brain</div>
+      <div class="target-option" id="optStan">Stan</div>
     </div>
 
     <div class="mic-container" id="micContainer">
@@ -219,7 +274,7 @@
       <span class="status-text" id="statusText">Tap the mic to start</span>
     </div>
     <div class="result-panel" id="resultPanel">
-      <div class="recall-query" id="recallQuery"></div>
+      <div class="result-label" id="resultLabel"></div>
       <div id="resultText"></div>
     </div>
   </div>
@@ -235,12 +290,44 @@
     let isProcessing = false;
     let timerInterval = null;
     let seconds = 0;
+    let target = 'brain'; // 'brain' or 'stan'
 
-    const ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice';
+    const BRAIN_ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice';
+    const STAN_ENDPOINT = 'https://olmaksvjanknqzndalzv.supabase.co/functions/v1/voice-stan';
 
     const $ = id => document.getElementById(id);
 
     function getToken() { return localStorage.getItem('supabrain_token') || ''; }
+
+    function setTarget(t) {
+      target = t;
+      $('sliderTrack').className = `slider-track ${t}`;
+      $('optBrain').className = t === 'brain' ? 'target-option active-brain' : 'target-option';
+      $('optStan').className = t === 'stan' ? 'target-option active-stan' : 'target-option';
+      $('title').className = t === 'brain' ? 'brain-title' : 'stan-title';
+      $('title').textContent = t === 'brain' ? 'SupaBrain' : 'Stan';
+      $('subtitle').textContent = t === 'brain' ? 'Speak a thought or ask a question' : 'Talk to Stan';
+      if (!isRecording && !isProcessing) {
+        $('micContainer').className = t === 'stan' ? 'mic-container stan-idle' : 'mic-container';
+        $('statusLabel').textContent = 'Ready';
+        $('statusText').textContent = 'Tap the mic to start';
+        $('statusText').className = 'status-text';
+      }
+      $('resultPanel').classList.remove('visible');
+      localStorage.setItem('supabrain_target', t);
+    }
+
+    $('optBrain').addEventListener('click', () => setTarget('brain'));
+    $('optStan').addEventListener('click', () => setTarget('stan'));
+
+    // Swipe support on slider
+    let touchStartX = 0;
+    $('targetSlider').addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    $('targetSlider').addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (dx > 30) setTarget('stan');
+      else if (dx < -30) setTarget('brain');
+    });
 
     function updateConnectionUI() {
       if (getToken()) {
@@ -305,7 +392,6 @@
         $('statusText').textContent = 'Tap again to stop';
         $('statusText').className = 'status-text';
         $('resultPanel').classList.remove('visible');
-        $('resultPanel').classList.remove('recall');
         startTimer();
       } catch (err) {
         $('statusLabel').textContent = 'Error';
@@ -320,7 +406,7 @@
       stopTimer();
       $('micContainer').className = 'mic-container processing';
       $('statusLabel').textContent = 'Processing';
-      $('statusText').textContent = 'Listening...';
+      $('statusText').textContent = target === 'stan' ? 'Talking to Stan...' : 'Listening...';
       $('statusText').className = 'status-text';
       isProcessing = true;
     }
@@ -332,8 +418,10 @@
       fd.append('audio', new File([blob], `recording.${ext}`, { type: mimeType }));
       fd.append('source', 'voice');
 
+      const endpoint = target === 'stan' ? STAN_ENDPOINT : BRAIN_ENDPOINT;
+
       try {
-        const res = await fetch(ENDPOINT, {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
           body: fd,
@@ -343,30 +431,36 @@
 
         isProcessing = false;
 
-        if (data.action === 'recalled') {
-          // Recall response
+        if (target === 'stan') {
+          // Stan response
+          $('micContainer').className = 'mic-container success-stan';
+          $('statusLabel').textContent = 'Stan';
+          $('statusText').textContent = '';
+          $('resultLabel').textContent = `"${data.query}"`;
+          $('resultLabel').className = 'result-label stan-label';
+          $('resultText').textContent = data.response;
+          $('resultPanel').className = 'result-panel stan-result visible';
+        } else if (data.action === 'recalled') {
+          // Brain recall
           $('micContainer').className = 'mic-container success-recall';
           $('statusLabel').textContent = `${data.results_count || 0} memories found`;
           $('statusText').textContent = '';
-          $('recallQuery').textContent = `"${data.query}"`;
-          $('recallQuery').style.display = 'block';
+          $('resultLabel').textContent = `"${data.query}"`;
+          $('resultLabel').className = 'result-label recall-label';
           $('resultText').textContent = data.summary;
-          $('resultPanel').classList.add('recall');
-          $('resultPanel').classList.add('visible');
-          // No auto-reset — let user read
+          $('resultPanel').className = 'result-panel recall visible';
         } else {
-          // Capture response
+          // Brain capture
           $('micContainer').className = 'mic-container success-capture';
           $('statusLabel').textContent = 'Captured';
           $('statusText').textContent = data.metadata?.topics?.join(', ') || 'Thought stored';
           $('statusText').className = 'status-text success-text';
-          $('recallQuery').style.display = 'none';
+          $('resultLabel').textContent = '';
           $('resultText').textContent = data.transcription;
-          $('resultPanel').classList.remove('recall');
-          $('resultPanel').classList.add('visible');
+          $('resultPanel').className = 'result-panel visible';
 
           setTimeout(() => {
-            $('micContainer').className = 'mic-container';
+            $('micContainer').className = target === 'stan' ? 'mic-container stan-idle' : 'mic-container';
             $('statusLabel').textContent = 'Ready';
             $('statusText').textContent = 'Tap the mic to start';
             $('statusText').className = 'status-text';
@@ -374,7 +468,7 @@
         }
       } catch (err) {
         isProcessing = false;
-        $('micContainer').className = 'mic-container';
+        $('micContainer').className = target === 'stan' ? 'mic-container stan-idle' : 'mic-container';
         $('statusLabel').textContent = 'Error';
         $('statusText').textContent = err.message;
         $('statusText').className = 'status-text error';
@@ -383,12 +477,12 @@
 
     $('micBtn').addEventListener('click', () => {
       if (isProcessing) return;
-      if (isRecording) {
-        stopRecording();
-      } else {
-        startRecording();
-      }
+      isRecording ? stopRecording() : startRecording();
     });
+
+    // Restore saved target
+    const savedTarget = localStorage.getItem('supabrain_target');
+    if (savedTarget === 'stan') setTarget('stan');
 
     updateConnectionUI();
   </script>
