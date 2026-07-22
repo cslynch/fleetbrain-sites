@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08090a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Money">
+<title>Money</title>
+<link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%22Money%22%2C%22short_name%22%3A%22Money%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2308090a%22%2C%22theme_color%22%3A%22%2308090a%22%2C%22start_url%22%3A%22.%22%2C%22icons%22%3A%5B%5D%7D'>
+<style>
+  :root{
+    --bg:#08090a; --surface:#0f1011; --card:rgba(255,255,255,.04);
+    --border:rgba(255,255,255,.08); --text:#e6e7ea; --muted:#8a8f98;
+    --indigo:#5e6ad2; --indigo2:#7170ff; --pos:#4cb782; --neg:#eb5757;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Inter","SF Pro Text",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  body{max-width:520px;margin:0 auto;padding:env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 88px)}
+  .hdr{display:flex;align-items:baseline;justify-content:space-between;
+    padding:20px 2px 8px}
+  .hdr h1{font-size:15px;font-weight:600;letter-spacing:.04em;margin:0}
+  .hdr .who{width:30px;height:30px;border-radius:50%;background:var(--card);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:var(--muted)}
+  .stale{font-size:12px;color:var(--muted);padding:0 2px 14px}
+  .stale button{all:unset;color:var(--indigo2);cursor:pointer}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:16px;margin-bottom:12px}
+  .label{font-size:11px;letter-spacing:.09em;color:var(--muted);
+    text-transform:uppercase;margin-bottom:10px}
+  .big{font-size:30px;font-weight:650;letter-spacing:-.02em}
+  .sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .row{display:flex;align-items:center;justify-content:space-between;
+    padding:11px 0;border-top:1px solid var(--border)}
+  .row:first-of-type{border-top:0}
+  .row .l{font-size:14px}
+  .row .r{font-size:14px;font-variant-numeric:tabular-nums}
+  .muted{color:var(--muted)}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+  .badge{font-size:9.5px;letter-spacing:.08em;padding:2px 6px;border-radius:5px;
+    background:rgba(94,106,210,.18);color:var(--indigo2);margin-left:7px;vertical-align:middle}
+  .chip{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--border);color:var(--muted)}
+  .chip.pending{color:#e2b93b;border-color:rgba(226,185,59,.35)}
+  .chip.posted{color:var(--pos);border-color:rgba(76,183,130,.35)}
+  .chip.rejected{color:var(--neg);border-color:rgba(235,87,87,.35)}
+  .chip.submitted{color:var(--muted)}
+  .rc{display:flex;flex-direction:column;gap:2px}
+  .d{font-size:12px;color:var(--muted)}
+  .empty{font-size:13px;color:var(--muted);padding:6px 0}
+  /* login */
+  .login{min-height:70vh;display:flex;flex-direction:column;justify-content:center;gap:14px}
+  .login h2{font-size:20px;font-weight:600;margin:0 0 2px}
+  .login p{font-size:13px;color:var(--muted);margin:0 0 10px}
+  input{width:100%;background:var(--surface);border:1px solid var(--border);
+    color:var(--text);border-radius:10px;padding:13px 14px;font-size:15px}
+  input:focus{outline:none;border-color:var(--indigo)}
+  button.primary{width:100%;background:var(--indigo);color:#fff;border:none;
+    border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer}
+  button.primary:disabled{opacity:.5}
+  .link{all:unset;color:var(--indigo2);font-size:12.5px;cursor:pointer;text-align:center;display:block;padding:8px 0}
+  .err{color:var(--neg);font-size:12.5px;min-height:16px}
+  .signout{all:unset;font-size:12px;color:var(--muted);cursor:pointer}
+  /* quick-add fixed footer */
+  .footbar{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;
+    padding:12px 16px calc(env(safe-area-inset-bottom) + 12px);
+    background:linear-gradient(transparent,var(--bg) 34%)}
+  /* bottom sheet (review detail / two-tap confirm / quick-add) */
+  .overlay{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;z-index:50}
+  .sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+  .sheet{position:relative;width:100%;max-width:520px;max-height:86vh;overflow-y:auto;
+    background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;
+    padding:18px 16px calc(env(safe-area-inset-bottom) + 18px)}
+  .sheet-title{font-size:16px;font-weight:650;margin-bottom:8px}
+  .sheet-msg{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11px;color:var(--muted);letter-spacing:.06em;
+    text-transform:uppercase;margin-bottom:5px}
+  select{width:100%;background:var(--surface);border:1px solid var(--border);
+    color:var(--text);border-radius:10px;padding:11px 12px;font-size:14px}
+  select:focus{outline:none;border-color:var(--indigo)}
+  .inbox-row{cursor:pointer}
+  .inbox-row .chevron{color:var(--muted);font-size:18px}
+  .rowbtns{display:flex;gap:8px;margin-top:8px}
+  .btn-mini{all:unset;font-size:12.5px;padding:6px 12px;border-radius:8px;cursor:pointer;
+    border:1px solid var(--border)}
+  .btn-mini.approve{color:var(--pos);border-color:rgba(76,183,130,.35)}
+  .btn-mini.reject{color:var(--neg);border-color:rgba(235,87,87,.35)}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .thumb{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+  .thumb-missing{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+const sb = createClient("https://yntlndckvihmllwkecka.supabase.co", "sb_publishable_aAOuAcWB-ZNlmpxlVUGtpw_ZZTZFIFi");
+const app = document.getElementById("app");
+
+// Cedar Stone entity_id verified live (same constant dwayne-dashboard's v_cash/v_property_pnl hardcode).
+const CEDARSTONE_ENTITY_ID = 2;
+
+const KIND_LABELS = {
+  bank_migration_batch: "Bank batch",
+  receipt_proposal: "Receipt",
+  manual_expense_proposal: "Quick add",
+};
+
+const money = (c) => {
+  const n = (Number(c||0)/100);
+  const s = Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  return (n<0?"−$":"$")+s;
+};
+const netClass = (c)=> Number(c)>0?"pos":(Number(c)<0?"neg":"muted");
+const title = (slug)=> (slug||"").split("-").map(w=>w?w[0].toUpperCase()+w.slice(1):"").join(" ");
+const fmtDate = (d)=> d? new Date(d+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "";
+const esc = (s)=> (s??"").toString().replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+// review_queue.age comes back as a Postgres interval (text). Best-effort humanize.
+const fmtAge = (a) => {
+  const s = String(a||"");
+  if(!s) return "";
+  const dm = s.match(/(\d+)\s+day/);
+  if(dm) return dm[1]+"d";
+  const tm = s.match(/(\d+):(\d+):/);
+  if(tm){ const h=parseInt(tm[1],10), m=parseInt(tm[2],10); return h>0?h+"h":(m>0?m+"m":"just now"); }
+  return "just now";
+};
+
+// ---------------------------------------------------------------------------
+// Auth (identical flow to dwayne-dashboard)
+// ---------------------------------------------------------------------------
+function renderLogin(msg){
+  app.innerHTML = `
+    <div class="login">
+      <div><h2>Money</h2><p>Sign in with your Cedar Stone email.</p></div>
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com"/>
+      <button class="primary" id="send">Send login code</button>
+      <div class="err" id="err">${msg?esc(msg):""}</div>
+    </div>`;
+  const err=document.getElementById("err");
+  document.getElementById("send").onclick = async ()=>{
+    const e=document.getElementById("email").value.trim();
+    if(!e){err.textContent="Enter your email.";return;}
+    err.textContent="";
+    const btn=document.getElementById("send"); btn.disabled=true; btn.textContent="Sending…";
+    const { error } = await sb.auth.signInWithOtp({ email:e, options:{ shouldCreateUser:false }});
+    btn.disabled=false; btn.textContent="Send login code";
+    if(error){ err.textContent=error.message; return; }
+    renderCode(e);
+  };
+}
+function renderCode(email){
+  app.innerHTML = `
+    <div class="login">
+      <div><h2>Enter code</h2><p>We sent a 6-digit code to ${esc(email)}.</p></div>
+      <input id="code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456"/>
+      <button class="primary" id="verify">Verify</button>
+      <button class="link" id="back">Use a different email</button>
+      <div class="err" id="err"></div>
+    </div>`;
+  const err=document.getElementById("err");
+  document.getElementById("back").onclick=()=>renderLogin();
+  document.getElementById("verify").onclick = async ()=>{
+    const token=document.getElementById("code").value.trim();
+    if(!token){err.textContent="Enter the code.";return;}
+    const btn=document.getElementById("verify"); btn.disabled=true; btn.textContent="Verifying…";
+    const { error } = await sb.auth.verifyOtp({ email, token, type:"email" });
+    btn.disabled=false; btn.textContent="Verify";
+    if(error){ err.textContent=error.message; return; }
+    boot();
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Bottom sheet (review detail / confirm / quick-add all reuse this)
+// ---------------------------------------------------------------------------
+function openSheet(html, onMount){
+  let overlay = document.getElementById("overlay");
+  if(!overlay){
+    overlay = document.createElement("div");
+    overlay.id = "overlay";
+    overlay.className = "overlay";
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = `<div class="sheet-backdrop" id="sheetBackdrop"></div><div class="sheet" id="sheetBody">${html}</div>`;
+  overlay.style.display = "flex";
+  document.getElementById("sheetBackdrop").onclick = closeSheet;
+  const body = document.getElementById("sheetBody");
+  if(onMount) onMount(body);
+}
+function closeSheet(){
+  const overlay = document.getElementById("overlay");
+  if(overlay){ overlay.style.display="none"; overlay.innerHTML=""; }
+}
+
+function confirmAndPost(message, action, payload){
+  openSheet(`
+    <div class="sheet-title">Confirm</div>
+    <div class="sheet-msg">${esc(message)}</div>
+    <div class="err" id="sheetErr"></div>
+    <button class="primary" id="sheetConfirm">Confirm</button>
+    <button class="link" id="sheetCancel">Cancel</button>
+  `, ()=>{
+    document.getElementById("sheetCancel").onclick = closeSheet;
+    document.getElementById("sheetConfirm").onclick = async ()=>{
+      const btn = document.getElementById("sheetConfirm");
+      btn.disabled = true; btn.textContent = "Sending…";
+      try{
+        await postConsoleApi(action, payload);
+        closeSheet();
+        renderApp();
+      }catch(e){
+        btn.disabled = false; btn.textContent = "Confirm";
+        document.getElementById("sheetErr").textContent = e.message || String(e);
+      }
+    };
+  });
+}
+
+async function postConsoleApi(action, payload){
+  const { data: sessData } = await sb.auth.getSession();
+  const token = sessData?.session?.access_token;
+  if(!token) throw new Error("no session");
+  const res = await fetch("https://yntlndckvihmllwkecka.supabase.co/functions/v1/console-api", {
+    method: "POST",
+    headers: { "content-type": "application/json", "authorization": `Bearer ${token}` },
+    body: JSON.stringify({ action, confirm: true, ...payload }),
+  });
+  let body = {};
+  try{ body = await res.json(); }catch{ /* non-JSON error body */ }
+  if(!res.ok || body?.ok !== true) throw new Error(body?.error || `request failed (${res.status})`);
+  return body;
+}
+
+// ---------------------------------------------------------------------------
+// Leg construction. Sign convention verified live (dwayne_v1_dashboard_views):
+// expense postings are +cents, income postings are -cents. cashDelta is the
+// signed change to the cash/checking leg (bank amount as-is, or ±amount for
+// manual entry based on the chosen category's type); the category leg is
+// always -cashDelta so the pair zero-sums.
+// ---------------------------------------------------------------------------
+function legsFromCashDelta(categoryAccount, cashAccountId, cashDelta, memo){
+  return [
+    { account_id: categoryAccount.account_id, amount_cents: -cashDelta, ...(categoryAccount.parcel_id!=null?{parcel_id:categoryAccount.parcel_id}:{}) , ...(memo?{memo}:{}) },
+    { account_id: Number(cashAccountId), amount_cents: cashDelta },
+  ];
+}
+function manualCashDelta(categoryAccount, amountCents){
+  return categoryAccount.type === "expense" ? -amountCents : amountCents;
+}
+
+function cashAccountOptions(){
+  return (DATA.accountBalances||[]).filter(a=> a.type==="asset" && ["checking","savings"].includes(a.subtype));
+}
+function categoryAccountOptions(entityId){
+  return (DATA.accountBalances||[]).filter(a=> (entityId==null || a.entity_id===entityId) && ["expense","income"].includes(a.type));
+}
+function acctLabel(a, withEntity){
+  return (withEntity? (a.entity_slug||("entity "+a.entity_id))+" · " : "") + a.path + " (" + a.type + ")";
+}
+function acctOptionsHtml(accts, withEntity){
+  if(!accts.length) return `<option value="">No accounts</option>`;
+  return accts.map(a=>`<option value="${a.account_id}">${esc(acctLabel(a, withEntity))}</option>`).join("");
+}
+function findAccount(accountId){
+  return (DATA.accountBalances||[]).find(a=> String(a.account_id)===String(accountId));
+}
+
+async function signedMediaUrl(path){
+  try{
+    const { data, error } = await sb.storage.from("receipts").createSignedUrl(path, 3600);
+    if(error) return null;
+    return data?.signedUrl || null;
+  }catch{ return null; }
+}
+async function renderMediaThumbs(paths){
+  if(!paths || !paths.length) return "";
+  const urls = await Promise.all(paths.map(signedMediaUrl));
+  return `<div class="thumbs">` + urls.map(u=> u? `<img class="thumb" src="${u}">` : `<div class="thumb thumb-missing">n/a</div>`).join("") + `</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Inbox
+// ---------------------------------------------------------------------------
+function renderInboxCard(rows){
+  const n = rows.length;
+  const body = n
+    ? rows.map(r=>`
+        <div class="row inbox-row" data-review-id="${r.review_id}">
+          <div class="rc">
+            <div class="l">${esc(r.summary || KIND_LABELS[r.kind] || r.kind)}</div>
+            <div class="d">${esc(KIND_LABELS[r.kind]||r.kind)}${r.item_count!=null?" · "+r.item_count+" items":""} · ${fmtAge(r.age)}</div>
+          </div>
+          <span class="chevron">›</span>
+        </div>`).join("")
+    : `<div class="empty">Inbox clear.</div>`;
+  return `
+    <div class="card">
+      <div class="label">Inbox${n?` <span class="badge">${n}</span>`:""}</div>
+      ${body}
+    </div>`;
+}
+
+function openReviewDetail(reviewId){
+  openSheet(`<div class="sheet-title">Loading…</div>`, async ()=>{
+    const { data: rev, error } = await sb.from("review_queue").select("id,kind,payload_json,resolution").eq("id", reviewId).maybeSingle();
+    const body = document.getElementById("sheetBody");
+    if(error || !rev){ body.innerHTML = `<div class="sheet-title">Not found</div><div class="err">${esc(error?.message||"review not found")}</div>`; return; }
+    if(rev.resolution != null){ body.innerHTML = `<div class="sheet-title">Already resolved</div><div class="sheet-msg">${esc(rev.resolution)}</div>`; return; }
+    if(rev.kind === "bank_migration_batch") await renderBankBatchDetail(rev);
+    else await renderProposalDetail(rev);
+  });
+}
+
+async function renderBankBatchDetail(rev){
+  const body = document.getElementById("sheetBody");
+  const flags = Array.isArray(rev.payload_json?.flags) ? rev.payload_json.flags : [];
+  const hashes = flags.map(f=>f?.hash).filter(Boolean);
+  const { data: staged, error } = hashes.length
+    ? await sb.from("staging_transactions").select("id,content_hash,disposition").in("content_hash", hashes)
+    : { data: [], error: null };
+  if(error){ body.innerHTML = `<div class="sheet-title">Error</div><div class="err">${esc(error.message)}</div>`; return; }
+  const byHash = new Map((staged||[]).map(s=>[s.content_hash, s]));
+  const cashAccts = cashAccountOptions();
+
+  body.innerHTML = `
+    <div class="sheet-title">${esc(rev.payload_json?.batch || "Bank batch")}</div>
+    <div class="field">
+      <label>Post to account</label>
+      <select id="bbCash">${acctOptionsHtml(cashAccts, true)}</select>
+    </div>
+    <div id="bbRows"></div>
+    <button class="link" id="bbClose">Close</button>`;
+  document.getElementById("bbClose").onclick = closeSheet;
+
+  const rowsEl = document.getElementById("bbRows");
+  function paintRows(){
+    const cashId = document.getElementById("bbCash").value;
+    const cashAcct = findAccount(cashId);
+    const catAccts = cashAcct ? categoryAccountOptions(cashAcct.entity_id) : [];
+    rowsEl.innerHTML = flags.map((f,i)=>{
+      const srow = byHash.get(f.hash);
+      const done = srow?.disposition;
+      if(done){
+        return `<div class="row"><div class="rc"><div class="l">${esc(f.desc||"")}</div><div class="d">${esc(f.flag||"")}</div></div>
+          <span class="chip ${esc(done)}">${esc(done)}</span></div>`;
+      }
+      return `<div class="row bbitem" data-idx="${i}">
+        <div class="rc" style="flex:1">
+          <div class="l">${esc(f.desc||"")} <span class="r ${netClass(f.amount_cents)}" style="float:right">${money(f.amount_cents)}</span></div>
+          <div class="d">${esc(f.flag||"")}</div>
+          <select class="bbcat" data-idx="${i}">${acctOptionsHtml(catAccts,false)}</select>
+          <div class="rowbtns">
+            <button class="btn-mini approve" data-idx="${i}">Approve</button>
+            <button class="btn-mini reject" data-idx="${i}">Reject</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("") || `<div class="empty">No rows.</div>`;
+
+    rowsEl.querySelectorAll(".approve").forEach(btn=> btn.onclick = ()=>{
+      const i = Number(btn.dataset.idx);
+      const f = flags[i];
+      const srow = byHash.get(f.hash);
+      const catSel = rowsEl.querySelector(`.bbcat[data-idx="${i}"]`);
+      const catAcct = findAccount(catSel?.value);
+      if(!srow){ alert("staging row not found for this item"); return; }
+      if(!catAcct){ alert("choose a category"); return; }
+      const legs = legsFromCashDelta(catAcct, cashId, f.amount_cents, f.desc);
+      confirmAndPost(`Post "${f.desc}" ${money(f.amount_cents)}?`, "resolve_item",
+        { review_id: rev.id, staging_id: srow.id, resolution: "approve", legs, meta: { memo: f.desc } });
+    });
+    rowsEl.querySelectorAll(".reject").forEach(btn=> btn.onclick = ()=>{
+      const i = Number(btn.dataset.idx);
+      const f = flags[i];
+      const srow = byHash.get(f.hash);
+      if(!srow){ alert("staging row not found for this item"); return; }
+      confirmAndPost(`Reject "${f.desc}"?`, "resolve_item",
+        { review_id: rev.id, staging_id: srow.id, resolution: "reject" });
+    });
+  }
+  document.getElementById("bbCash").onchange = paintRows;
+  paintRows();
+}
+
+async function renderProposalDetail(rev){
+  const body = document.getElementById("sheetBody");
+  const p = rev.payload_json || {};
+  const hasLegs = Array.isArray(p.legs) && p.legs.length > 0;
+
+  if(hasLegs){
+    const legList = p.legs;
+    const cashLegIdx = legList.findIndex(l=> findAccount(l.account_id)?.type === "asset");
+    const catLegIdx = legList.findIndex((_l,i)=> i!==cashLegIdx);
+    const legRows = legList.map(l=>{
+      const a = findAccount(l.account_id);
+      return `<div class="row"><div class="l">${esc(a?a.path:("account "+l.account_id))}</div><div class="r ${netClass(l.amount_cents)}">${money(l.amount_cents)}</div></div>`;
+    }).join("");
+    const mediaHtml = await renderMediaThumbs(p.media);
+    body.innerHTML = `
+      <div class="sheet-title">${esc(KIND_LABELS[rev.kind]||rev.kind)}</div>
+      <div class="sheet-msg">${p.payee?esc(p.payee)+" · ":""}${p.date?esc(p.date):""}</div>
+      ${p.memo?`<div class="sheet-msg">${esc(p.memo)}</div>`:""}
+      <div id="pdLegs">${legRows}</div>
+      ${(cashLegIdx>=0 && catLegIdx>=0) ? `<button class="link" id="pdEditCat">Edit category</button>
+      <div id="pdCatPicker" style="display:none" class="field"><label>New category</label><select id="pdCatSel"></select></div>` : ""}
+      ${mediaHtml}
+      <div class="rowbtns" style="margin-top:12px">
+        <button class="primary" id="pdApprove">Approve</button>
+        <button class="btn-mini reject" id="pdReject">Reject</button>
+      </div>`;
+
+    if(cashLegIdx>=0 && catLegIdx>=0){
+      document.getElementById("pdEditCat").onclick = ()=>{
+        const picker = document.getElementById("pdCatPicker");
+        const sel = document.getElementById("pdCatSel");
+        const entId = p.entity_id ?? findAccount(legList[cashLegIdx].account_id)?.entity_id;
+        sel.innerHTML = acctOptionsHtml(categoryAccountOptions(entId), false);
+        picker.style.display = "block";
+      };
+    }
+
+    document.getElementById("pdApprove").onclick = ()=>{
+      const picker = document.getElementById("pdCatPicker");
+      let legsToSend = legList;
+      if(picker && picker.style.display !== "none"){
+        const newCat = findAccount(document.getElementById("pdCatSel").value);
+        if(newCat){
+          const cashLeg = legList[cashLegIdx];
+          legsToSend = legList.map((l,i)=> i===catLegIdx
+            ? { account_id: newCat.account_id, amount_cents: -cashLeg.amount_cents, ...(newCat.parcel_id!=null?{parcel_id:newCat.parcel_id}:{}) }
+            : l);
+        }
+      }
+      confirmAndPost(`Post this ${KIND_LABELS[rev.kind]||rev.kind}?`, "resolve_review",
+        { review_id: rev.id, resolution: "approve", legs: legsToSend, meta: { payee: p.payee, memo: p.memo, date: p.date } });
+    };
+    document.getElementById("pdReject").onclick = ()=>{
+      confirmAndPost(`Reject this ${KIND_LABELS[rev.kind]||rev.kind}?`, "resolve_review",
+        { review_id: rev.id, resolution: "reject" });
+    };
+    return;
+  }
+
+  // No legs yet (e.g. raw SMS receipt_proposal) -> Casey categorizes before approving.
+  const entities = (DATA.netWorth||[]).filter(r=>!r.is_rollup);
+  const mediaHtml = await renderMediaThumbs(p.media);
+  body.innerHTML = `
+    <div class="sheet-title">${esc(KIND_LABELS[rev.kind]||rev.kind)}</div>
+    ${p.from_e164?`<div class="sheet-msg">from ${esc(p.from_e164)}</div>`:""}
+    ${p.body?`<div class="sheet-msg">${esc(p.body)}</div>`:""}
+    ${mediaHtml}
+    <div class="field"><label>Entity</label><select id="rpEntity">${entities.map(e=>`<option value="${e.entity_id}">${esc(title(e.entity_slug))}</option>`).join("")||`<option value="">No entities</option>`}</select></div>
+    <div class="field"><label>Category</label><select id="rpCat"></select></div>
+    <div class="field"><label>Cash account</label><select id="rpCash"></select></div>
+    <div class="field"><label>Amount</label><input id="rpAmt" inputmode="decimal" placeholder="0.00"></div>
+    <div class="field"><label>Memo (optional)</label><input id="rpMemo" value="${esc(p.body||"")}"></div>
+    <div class="err" id="rpErr"></div>
+    <div class="rowbtns" style="margin-top:12px">
+      <button class="primary" id="pdApprove">Approve</button>
+      <button class="btn-mini reject" id="pdReject">Reject</button>
+    </div>`;
+
+  function paintPickers(){
+    const entId = Number(document.getElementById("rpEntity").value);
+    document.getElementById("rpCat").innerHTML = acctOptionsHtml(categoryAccountOptions(entId), false);
+    document.getElementById("rpCash").innerHTML = acctOptionsHtml(cashAccountOptions().filter(a=>a.entity_id===entId), false);
+  }
+  document.getElementById("rpEntity").onchange = paintPickers;
+  paintPickers();
+
+  document.getElementById("pdApprove").onclick = ()=>{
+    const err = document.getElementById("rpErr");
+    const entId = Number(document.getElementById("rpEntity").value);
+    const catAcct = findAccount(document.getElementById("rpCat").value);
+    const cashId = document.getElementById("rpCash").value;
+    const amt = Math.round(parseFloat(document.getElementById("rpAmt").value)*100);
+    const memo = document.getElementById("rpMemo").value.trim();
+    if(!entId || !catAcct || !cashId){ err.textContent = "pick entity, category, and cash account"; return; }
+    if(!Number.isInteger(amt) || amt<=0){ err.textContent = "enter a valid amount"; return; }
+    err.textContent = "";
+    const cashDelta = manualCashDelta(catAcct, amt);
+    const legs = legsFromCashDelta(catAcct, cashId, cashDelta, memo||undefined);
+    confirmAndPost(`Post ${money(amt)} to ${catAcct.path}?`, "resolve_review",
+      { review_id: rev.id, resolution: "approve", legs, meta: { payee: p.from_e164, memo: memo||undefined } });
+  };
+  document.getElementById("pdReject").onclick = ()=>{
+    confirmAndPost(`Reject this ${KIND_LABELS[rev.kind]||rev.kind}?`, "resolve_review",
+      { review_id: rev.id, resolution: "reject" });
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Quick add
+// ---------------------------------------------------------------------------
+function openQuickAdd(){
+  const entities = (DATA.netWorth||[]).filter(r=>!r.is_rollup);
+  openSheet(`
+    <div class="sheet-title">Add expense / receipt</div>
+    <div class="field"><label>Entity</label><select id="qaEntity">${entities.map(e=>`<option value="${e.entity_id}">${esc(title(e.entity_slug))}</option>`).join("")||`<option value="">No entities</option>`}</select></div>
+    <div class="field"><label>Category</label><select id="qaCat"></select></div>
+    <div class="field"><label>Cash account</label><select id="qaCash"></select></div>
+    <div class="field"><label>Amount</label><input id="qaAmt" inputmode="decimal" placeholder="0.00"></div>
+    <div class="field"><label>Payee (optional)</label><input id="qaPayee"></div>
+    <div class="field"><label>Memo (optional)</label><input id="qaMemo"></div>
+    <div class="field"><label>Date (optional)</label><input id="qaDate" type="date"></div>
+    <div class="field"><label>Photo (optional)</label><input id="qaPhoto" type="file" accept="image/*"></div>
+    <div class="err" id="qaErr"></div>
+    <button class="primary" id="qaSubmit">Review &amp; add</button>
+    <button class="link" id="qaCancel">Cancel</button>
+  `, ()=>{
+    document.getElementById("qaCancel").onclick = closeSheet;
+    function paintPickers(){
+      const entId = Number(document.getElementById("qaEntity").value);
+      document.getElementById("qaCat").innerHTML = acctOptionsHtml(categoryAccountOptions(entId), false);
+      document.getElementById("qaCash").innerHTML = acctOptionsHtml(cashAccountOptions().filter(a=>a.entity_id===entId), false);
+    }
+    document.getElementById("qaEntity").onchange = paintPickers;
+    paintPickers();
+
+    document.getElementById("qaSubmit").onclick = async ()=>{
+      const err = document.getElementById("qaErr");
+      const entId = Number(document.getElementById("qaEntity").value);
+      const catAcct = findAccount(document.getElementById("qaCat").value);
+      const cashId = document.getElementById("qaCash").value;
+      const amt = Math.round(parseFloat(document.getElementById("qaAmt").value)*100);
+      const payee = document.getElementById("qaPayee").value.trim();
+      const memo = document.getElementById("qaMemo").value.trim();
+      const date = document.getElementById("qaDate").value;
+      if(!entId || !catAcct || !cashId){ err.textContent = "pick entity, category, and cash account"; return; }
+      if(!Number.isInteger(amt) || amt<=0){ err.textContent = "enter a valid amount"; return; }
+      err.textContent = "";
+      const cashDelta = manualCashDelta(catAcct, amt);
+      const legs = legsFromCashDelta(catAcct, cashId, cashDelta, memo||undefined);
+      const meta = { payee: payee||undefined, memo: memo||undefined, date: date||undefined };
+      const file = document.getElementById("qaPhoto").files[0];
+      let media;
+      if(file){
+        const dataUrl = await new Promise((resolve,reject)=>{
+          const fr = new FileReader();
+          fr.onload = ()=>resolve(fr.result);
+          fr.onerror = reject;
+          fr.readAsDataURL(file);
+        });
+        const base64 = String(dataUrl).split(",")[1];
+        const ext = (file.name.split(".").pop()||"jpg").toLowerCase();
+        media = { base64, ext, content_type: file.type||"image/jpeg" };
+      }
+      confirmAndPost(`Add ${money(amt)} to ${catAcct.path}?`, "propose", { entity_id: entId, legs, meta, ...(media?{media}:{}) });
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Panes
+// ---------------------------------------------------------------------------
+function renderCashCard(rows){
+  const body = rows.length ? rows.map(r=>`
+    <div class="row"><div class="rc">
+      <div class="l">${esc(title(r.entity_slug))} · ${esc(r.path)}</div>
+      <div class="d">${r.as_of? "as of "+fmtDate(r.as_of) : "no activity yet"}</div>
+    </div><div class="r ${netClass(r.balance_cents)}">${money(r.balance_cents)}</div></div>`).join("")
+    : `<div class="empty">No cash accounts.</div>`;
+  return `<div class="card"><div class="label">Cash</div>${body}</div>`;
+}
+
+function renderNetWorthCard(netWorth, memberCapital, unreturned, recovery){
+  const rollup = netWorth.find(r=>r.is_rollup);
+  const perEntity = netWorth.filter(r=>!r.is_rollup);
+  const entityRows = perEntity.map(r=>`
+    <div class="row"><div class="l">${esc(title(r.entity_slug))}</div>
+      <div class="r ${netClass(r.net_worth_cents)}">${money(r.net_worth_cents)}</div></div>`).join("")
+    || `<div class="empty">No entities.</div>`;
+
+  const csCapital = (memberCapital||[]).filter(m=>m.entity_id===CEDARSTONE_ENTITY_ID);
+  const csUnreturned = (unreturned||[]).filter(u=>u.entity_id===CEDARSTONE_ENTITY_ID);
+  const csRecovery = (recovery||[]).find(r=>r.entity_id===CEDARSTONE_ENTITY_ID);
+  const capitalHtml = csCapital.length ? `
+    <div class="sub" style="margin:10px 0 6px">Cedar Stone capital</div>
+    ${csCapital.map(m=>`
+      <div class="row"><div class="l">Member ${m.member_party_id}</div>
+        <div class="r">${money(m.capital_cents)}</div></div>`).join("")}
+    ${csUnreturned.length ? `<div class="sub" style="margin:8px 0 4px">Unreturned capital</div>` +
+      csUnreturned.map(u=>`<div class="row"><div class="l">Member ${u.member_party_id}${u.parcel_id?" · parcel "+u.parcel_id:""}</div><div class="r ${netClass(u.unreturned_cents)}">${money(u.unreturned_cents)}</div></div>`).join("") : ""}
+    ${csRecovery ? `<div class="sub" style="margin:8px 0 0">${csRecovery.recovered?"Recovered":"Not yet recovered"} · ${money(csRecovery.total_unreturned_cents)} unreturned</div>` : ""}
+  ` : "";
+
+  return `
+    <div class="card">
+      <div class="label">Net worth</div>
+      <div class="big ${rollup?netClass(rollup.net_worth_cents):""}">${rollup?money(rollup.net_worth_cents):money(0)}</div>
+      ${entityRows}
+      ${capitalHtml}
+    </div>`;
+}
+
+function renderPnlCard(rows){
+  const sorted = rows.slice().sort((a,b)=>(a.is_rollup?1:0)-(b.is_rollup?1:0));
+  const body = sorted.map(r=>{
+    const name = r.is_rollup ? "Cedar Stone (all)" : title(r.slug);
+    const sold = (r.status==="sold") ? `<span class="badge">SOLD</span>` : "";
+    return `<div class="row"><div class="l">${esc(name)}${sold}</div>
+      <div class="r ${netClass(r.net_cents)}">${money(r.net_cents)}</div></div>`;
+  }).join("") || `<div class="empty">No properties yet.</div>`;
+  return `<div class="card"><div class="label">P&amp;L</div>${body}</div>`;
+}
+
+function renderUpcomingCard(rows){
+  const sorted = rows.slice().sort((a,b)=> (a.next_due||"9999-99-99").localeCompare(b.next_due||"9999-99-99"));
+  const body = sorted.length ? sorted.map(o=>`
+      <div class="row"><div class="l muted">${fmtDate(o.next_due)}</div>
+      <div class="r">${esc(o.name)} <span class="d">${esc(title(o.entity_slug))}</span></div></div>`).join("")
+    : `<div class="empty">Nothing upcoming.</div>`;
+  return `<div class="card"><div class="label">Upcoming</div>${body}</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// App shell
+// ---------------------------------------------------------------------------
+let DATA = null;
+
+async function renderApp(){
+  app.innerHTML = `<div class="stale">Loading…</div>`;
+  const [inbox, cash, netWorth, pnl, obligations, accountBalances, memberCapital, unreturned, recovery, sess] = await Promise.all([
+    sb.from("v_review_inbox").select("*"),
+    sb.from("v_cash_accounts").select("*"),
+    sb.from("v_net_worth").select("*"),
+    sb.from("v_property_pnl").select("*"),
+    sb.from("v_obligations_all").select("*"),
+    sb.from("v_account_balances").select("*"),
+    sb.from("v_member_capital").select("*"),
+    sb.from("v_unreturned_capital").select("*"),
+    sb.from("v_recovery_status").select("*"),
+    sb.auth.getUser(),
+  ]);
+  const anyErr = inbox.error||cash.error||netWorth.error||pnl.error||obligations.error||accountBalances.error||memberCapital.error||unreturned.error||recovery.error;
+  if(anyErr){
+    app.innerHTML = `<div class="stale">Could not load. <button onclick="location.reload()">Retry</button></div><div class="err" style="padding:0 2px">${esc(anyErr.message)}</div>`;
+    return;
+  }
+  DATA = {
+    inbox: inbox.data||[], cash: cash.data||[], netWorth: netWorth.data||[], pnl: pnl.data||[],
+    obligations: obligations.data||[], accountBalances: accountBalances.data||[],
+    memberCapital: memberCapital.data||[], unreturned: unreturned.data||[], recovery: recovery.data||[],
+  };
+
+  const email = sess?.data?.user?.email || "";
+  const initials = (email.split("@")[0].slice(0,2)||"CM").toUpperCase();
+
+  app.innerHTML = `
+    <div class="hdr"><h1>MONEY</h1><div class="who">${initials}</div></div>
+    <div class="stale">updated just now · <button id="refresh">refresh</button>
+      &nbsp;·&nbsp; <button class="signout" id="signout">sign out</button></div>
+    ${renderInboxCard(DATA.inbox)}
+    ${renderCashCard(DATA.cash)}
+    ${renderNetWorthCard(DATA.netWorth, DATA.memberCapital, DATA.unreturned, DATA.recovery)}
+    ${renderPnlCard(DATA.pnl)}
+    ${renderUpcomingCard(DATA.obligations)}
+    <div class="footbar"><button class="primary" id="qaFab">+ Add expense / receipt</button></div>`;
+
+  document.getElementById("refresh").onclick = renderApp;
+  document.getElementById("signout").onclick = async ()=>{ await sb.auth.signOut(); renderLogin(); };
+  document.getElementById("qaFab").onclick = openQuickAdd;
+  document.querySelectorAll(".inbox-row").forEach(row=>{
+    row.onclick = ()=> openReviewDetail(Number(row.dataset.reviewId));
+  });
+}
+
+async function boot(){
+  const { data } = await sb.auth.getSession();
+  if(data?.session) renderApp(); else renderLogin();
+}
+sb.auth.onAuthStateChange((_e, session)=>{ if(session) renderApp(); });
+boot();
+</script>
+</body>
+</html>
