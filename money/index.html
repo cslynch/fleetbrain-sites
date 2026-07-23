@@ -148,7 +148,7 @@ function renderLogin(msg){
     if(!e){err.textContent="Enter your email.";return;}
     err.textContent="";
     const btn=document.getElementById("send"); btn.disabled=true; btn.textContent="Sending…";
-    const { error } = await sb.auth.signInWithOtp({ email:e, options:{ shouldCreateUser:false }});
+    const { error } = await sb.auth.signInWithOtp({ email:e, options:{ shouldCreateUser:false, emailRedirectTo:"https://fleetbrain.ai/money/" }});
     btn.disabled=false; btn.textContent="Send login code";
     if(error){ err.textContent=error.message; return; }
     renderCode(e);
@@ -620,6 +620,128 @@ function renderUpcomingCard(rows){
 }
 
 // ---------------------------------------------------------------------------
+// Register (S2 B1-B5) — per-account ledger, direct post + void. v1: no
+// transfers form, no search/filter, no edit-category (ND7 -> v1.1/S6).
+// ---------------------------------------------------------------------------
+let registerAcctId = null;
+
+async function loadRegisterRows(acctId){
+  const { data, error } = await sb.from("postings")
+    .select("amount_cents,parcel_id,memo,transactions(id,date,payee_text,status,source,reverses)")
+    .eq("account_id", acctId)
+    .order("id", { ascending: true });
+  if(error) throw error;
+  return data || [];
+}
+
+// Cumulative sum in chronological (date, then txn id) order; returned
+// newest-first for display, each row carrying its running balance at that point.
+function computeRegisterRows(rows){
+  const chrono = rows.slice().sort((a,b)=>{
+    const da = a.transactions?.date || "", db = b.transactions?.date || "";
+    if(da !== db) return da < db ? -1 : 1;
+    return (a.transactions?.id||0) - (b.transactions?.id||0);
+  });
+  let running = 0;
+  const withBalance = chrono.map(r=>{
+    running += Number(r.amount_cents||0);
+    return { ...r, _balance: running };
+  });
+  return withBalance.slice().reverse();
+}
+
+function renderRegisterRows(rows){
+  if(!rows.length) return `<div class="empty">No activity yet.</div>`;
+  return rows.map(r=>{
+    const t = r.transactions || {};
+    const isVoided = t.status === "void" || t.reverses != null;
+    const canVoid = !isVoided && t.id != null;
+    return `<div class="row" style="${isVoided?"opacity:.5":""}">
+      <div class="rc">
+        <div class="l" style="${isVoided?"text-decoration:line-through":""}">${esc(t.payee_text || r.memo || "—")}</div>
+        <div class="d">${fmtDate(t.date)}${r.memo && t.payee_text ? " · " + esc(r.memo) : ""}${isVoided?" · void":""}</div>
+      </div>
+      <div class="rc" style="align-items:flex-end;gap:2px">
+        <div class="r ${netClass(r.amount_cents)}">${money(r.amount_cents)}</div>
+        <div class="d">bal ${money(r._balance)}</div>
+        ${canVoid ? `<button class="btn-mini reject regVoid" data-txn-id="${t.id}" style="margin-top:2px">Void</button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function renderRegisterCard(){
+  const sel = document.getElementById("regAcct");
+  const rowsEl = document.getElementById("regRows");
+  if(!sel || !rowsEl) return;
+  const acctId = sel.value;
+  if(!acctId){ rowsEl.innerHTML = `<div class="empty">No accounts.</div>`; return; }
+  rowsEl.innerHTML = `<div class="empty">Loading…</div>`;
+  try{
+    const raw = await loadRegisterRows(acctId);
+    const rows = computeRegisterRows(raw);
+    rowsEl.innerHTML = renderRegisterRows(rows);
+    rowsEl.querySelectorAll(".regVoid").forEach(btn=>{
+      btn.onclick = ()=>{
+        const txnId = Number(btn.dataset.txnId);
+        confirmAndPost(`Void this transaction?`, "void", { txn_id: txnId });
+      };
+    });
+  }catch(e){
+    // V2 confirm (B2): authenticated SELECT under the casey JWT is expected to
+    // suffice (A2 evidence). Surface a 401/empty-under-RLS here rather than
+    // silently widening grants — that needs a migration + Casey.
+    rowsEl.innerHTML = `<div class="err">${esc(e.message||String(e))}</div>`;
+  }
+}
+
+function renderRegisterCardShell(){
+  const accts = DATA.accountBalances || [];
+  return `
+    <div class="card" id="registerCard">
+      <div class="label">Register</div>
+      <div class="field"><select id="regAcct">${acctOptionsHtml(accts, true)}</select></div>
+      <div id="regRows"><div class="empty">Loading…</div></div>
+      <button class="link" id="regAddBtn">+ Add entry</button>
+    </div>`;
+}
+
+function openRegisterAdd(acctId){
+  const acct = findAccount(acctId);
+  if(!acct) return;
+  const cats = categoryAccountOptions(acct.entity_id);
+  openSheet(`
+    <div class="sheet-title">Add entry — ${esc(acct.path)}</div>
+    <div class="field"><label>Date</label><input id="raDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="field"><label>Payee</label><input id="raPayee"></div>
+    <div class="field"><label>Amount</label><input id="raAmt" inputmode="decimal" placeholder="0.00"></div>
+    <div class="field"><label>Category</label><select id="raCat">${acctOptionsHtml(cats, true)}</select></div>
+    <div class="field"><label>Memo (optional)</label><input id="raMemo"></div>
+    <div class="err" id="raErr"></div>
+    <button class="primary" id="raSubmit">Review &amp; add</button>
+    <button class="link" id="raCancel">Cancel</button>
+  `, ()=>{
+    document.getElementById("raCancel").onclick = closeSheet;
+    document.getElementById("raSubmit").onclick = ()=>{
+      const err = document.getElementById("raErr");
+      const catAcct = findAccount(document.getElementById("raCat").value);
+      const payee = document.getElementById("raPayee").value.trim();
+      const amt = Math.round(parseFloat(document.getElementById("raAmt").value)*100);
+      const date = document.getElementById("raDate").value;
+      const memo = document.getElementById("raMemo").value.trim();
+      if(!catAcct){ err.textContent = "choose a category"; return; }
+      if(!Number.isInteger(amt) || amt<=0){ err.textContent = "enter a valid amount"; return; }
+      err.textContent = "";
+      const cashDelta = manualCashDelta(catAcct, amt);
+      const legs = legsFromCashDelta(catAcct, acctId, cashDelta, memo||undefined);
+      const externalId = "console:post:" + crypto.randomUUID();
+      confirmAndPost(`Post ${money(amt)} ${catAcct.type==="expense"?"to":"from"} ${catAcct.path}?`, "post",
+        { legs, meta: { date, payee: payee||undefined, memo: memo||undefined }, external_id: externalId });
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
 // App shell
 // ---------------------------------------------------------------------------
 let DATA = null;
@@ -658,6 +780,7 @@ async function renderApp(){
       &nbsp;·&nbsp; <button class="signout" id="signout">sign out</button></div>
     ${renderInboxCard(DATA.inbox)}
     ${renderCashCard(DATA.cash)}
+    ${renderRegisterCardShell()}
     ${renderNetWorthCard(DATA.netWorth, DATA.memberCapital, DATA.unreturned, DATA.recovery)}
     ${renderPnlCard(DATA.pnl)}
     ${renderUpcomingCard(DATA.obligations)}
@@ -669,6 +792,18 @@ async function renderApp(){
   document.querySelectorAll(".inbox-row").forEach(row=>{
     row.onclick = ()=> openReviewDetail(Number(row.dataset.reviewId));
   });
+
+  const regAcctSel = document.getElementById("regAcct");
+  if(regAcctSel){
+    if(registerAcctId && [...regAcctSel.options].some(o=>o.value===String(registerAcctId))){
+      regAcctSel.value = String(registerAcctId);
+    } else {
+      registerAcctId = regAcctSel.value || null;
+    }
+    regAcctSel.onchange = ()=>{ registerAcctId = regAcctSel.value; renderRegisterCard(); };
+    document.getElementById("regAddBtn").onclick = ()=> openRegisterAdd(regAcctSel.value);
+    renderRegisterCard();
+  }
 }
 
 async function boot(){
